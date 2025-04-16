@@ -1,0 +1,89 @@
+server:
+  port: 8085
+spring:
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username:
+    password:
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: false
+
+  application:
+    name: com.ges.art
+  profiles:
+    active: prod
+  datasource:
+    postgres:
+      jdbc-url: jdbc:postgresql://localhost:5432/ges_art?currentSchema=ges_art
+      username: postgres
+      password: postgres
+      driver-class-name: org.postgresql.Driver
+    oracle:
+      jdbc-url: jdbc:oracle:thin:@192.168.150.247:1521:df
+      username:
+      password:
+      testWhileIdle: true
+      driver-class-name: oracle.jdbc.OracleDriver
+    mysql:
+      jdbc-url: jdbc:mysql://localhost:3306/ff
+      username: dsi_dev
+      password: orauniverse1307
+      driver-class-name: com.mysql.jdbc.Driver
+    hikari:
+      minimumIdle: 1
+      maximumPoolSize: 10
+      idleTimeout: 30000
+      maxLifetime: 2000000
+      connectionTimeout: 30000
+      data-source-properties:
+        oracle:
+          jdbc:
+            timezoneAsRegion: false
+logging:
+  level:
+    com:
+      zaxxer:
+        hikari: TRACE
+        HikariConfig: DEBUG
+  #    poolName:
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+    open-in-view: false
+    # database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+application:
+  security:
+    jwt:
+      secret-key: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+      expiration: 86400000 # a day
+      refresh-token:
+        expiration: 604800000 # 7 days
+  servlet:
+    multipart:
+      enable: true
+      max-file-size: 10MB
+      max-request-size: 10MB
+storage:
+  # replace 'localhost' by host address for production
+  host: http://localhost:8087${server.servlet.context-path:/}
+  folder: ${user.home}/storage/
+file:
+  upload-dir=: ./storage/dossierclient
+tesseracts:
+  data:
+    path: ${TESSDATA_PATH:tessdata}
+    language: ${TESSERACT_LANGUAGE:fra}
+    dpi: ${TESSERACT_DPI:300}
+    org.springframework.mail: DEBUG
+    org.apache.commons.mail: DEBUG
