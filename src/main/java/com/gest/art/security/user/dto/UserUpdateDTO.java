@@ -6,6 +6,7 @@ import com.gest.art.security.user.Role;
 import com.gest.art.security.user.Statut;
 import com.gest.art.security.user.User;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.time.Instant;
 import java.util.HashSet;

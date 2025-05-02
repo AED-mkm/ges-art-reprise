@@ -4,26 +4,25 @@ import com.gest.art.parametre.entite.Produit;
 import com.gest.art.security.auditing.AbstractAuditingEntity;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Data
 @Builder
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = false)
-public class ProduitDTO extends AbstractAuditingEntity {
+public class ProduitDTO extends AbstractAuditingEntity implements Serializable {
     private static final long serialVersionUID = 1L;
-
     private String id;
     private Integer codeprod;
     private String libelle;
-
     @NotNull
-    private BigDecimal prixActuel;
-
+    private BigDecimal prixActuel = BigDecimal.ZERO;
     private BigDecimal ancienPrix;
     private BigDecimal prixMax;
     private BigDecimal stockProduit;
@@ -60,10 +59,6 @@ public class ProduitDTO extends AbstractAuditingEntity {
                         produit.getProdBonCmdeFour().stream()
                                 .map(prod -> prod.getId())
                                 .collect(Collectors.toList()) : null)
-               /* .createdBy(produit.getCreatedBy())
-                .lastModifiedBy(produit.getLastModifiedBy())
-                .createdDate(produit.getCreatedDate())
-                .lastModifiedDate(produit.getLastModifiedDate())*/
                 .build();
     }
 

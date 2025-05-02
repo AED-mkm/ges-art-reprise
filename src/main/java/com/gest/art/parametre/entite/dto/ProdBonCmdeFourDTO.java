@@ -5,16 +5,17 @@ package com.gest.art.parametre.entite.dto;
 import com.gest.art.parametre.entite.ProdBonCmdeFour;
 import com.gest.art.security.auditing.AbstractAuditingEntity;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
 
-@Data
 @Builder
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = false)
-public class ProdBonCmdeFourDTO extends AbstractAuditingEntity implements Serializable {
+public class ProdBonCmdeFourDTO extends AbstractAuditingEntity implements Serializable  {
 	private static final long serialVersionUID = 1L;
 
 	private String id;

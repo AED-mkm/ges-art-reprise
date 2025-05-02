@@ -26,7 +26,8 @@ public class FournisseurResource {
 
     private final FournisseurRepository fournisseurRepository;
 
-    public FournisseurResource(FournisseurService fournisseurService, FournisseurRepository fournisseurRepository) {
+    public FournisseurResource(FournisseurService fournisseurService,
+                               FournisseurRepository fournisseurRepository) {
         this.fournisseurService = fournisseurService;
         this.fournisseurRepository = fournisseurRepository;
     }
@@ -35,18 +36,18 @@ public class FournisseurResource {
     /**
      * {@code POST  /Fournisseurs} : Create a new Fournisseur.
      *
-     * @param FournisseurDTO the FournisseurDTO to create.
+     * @param fournisseurDTO the FournisseurDTO to create.
      * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new FournisseurDTO,
      * or with status {@code 400 (Bad Request)} if the Fournisseur has already an ID.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/fournisseurs")
-    public ResponseEntity<FournisseurDTO> createFournisseur(@RequestBody final FournisseurDTO FournisseurDTO) throws URISyntaxException {
-        log.debug("REST request to save Fournisseur : {}", FournisseurDTO);
-        if (FournisseurDTO.getId() != null) {
+    public ResponseEntity<FournisseurDTO> createFournisseur(@RequestBody final FournisseurDTO fournisseurDTO) throws URISyntaxException {
+        log.debug("REST request to save Fournisseur : {}", fournisseurDTO);
+        if (fournisseurDTO.getId() != null) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "A new Fournisseur cannot already have an ID");
         }
-        FournisseurDTO result = fournisseurService.save(FournisseurDTO);
+        FournisseurDTO result = fournisseurService.save(fournisseurDTO);
         return ResponseEntity
                 .created(new URI("/api/Fournisseurs/" + result.getId()))
                 .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId()))
@@ -105,8 +106,8 @@ public class FournisseurResource {
     @GetMapping("/fournisseurs/{id}")
     public ResponseEntity<FournisseurDTO> getFournisseur(@PathVariable final String id) {
         log.debug("REST request to get Fournisseur : {}", id);
-        FournisseurDTO FournisseurDTO = fournisseurService.findOne(id);
-        return ResponseEntity.ok(FournisseurDTO);
+        FournisseurDTO fournisseurDTO = fournisseurService.findOne(id);
+        return ResponseEntity.ok(fournisseurDTO);
     }
 
     /**

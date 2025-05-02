@@ -5,7 +5,9 @@ import com.gest.art.security.auditing.AbstractAuditingEntity;
 import com.gest.art.security.user.Role;
 import com.gest.art.security.user.Statut;
 import com.gest.art.security.user.User;
+import jakarta.persistence.Entity;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.time.Instant;
 import java.util.HashSet;

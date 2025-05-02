@@ -13,12 +13,16 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
@@ -40,12 +44,16 @@ import java.math.BigDecimal;
 @SQLDelete(sql = "update kg_historique_prix set deleted = true where id=? ")
 @Where(clause = "deleted=false")
 public class HistoriquePrix extends AbstractAuditingEntity implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    @SequenceGenerator(name = "seq_hist_prix", sequenceName = "seq_hist_prix",
-            initialValue = 8010, allocationSize = 5)
-    private Long id;
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(
+            name = "UUID",
+            strategy = "org.hibernate.id.UUIDGenerator"
+    )
+    @Column(name = "id", updatable = false, nullable = false)
+    private String id;
     @Column(name = "nouveau_prix")
     private BigDecimal nouveauPrix = BigDecimal.ZERO;
     @Column(name = "ancien_prix")

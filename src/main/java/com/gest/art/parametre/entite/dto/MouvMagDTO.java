@@ -4,16 +4,17 @@ package com.gest.art.parametre.entite.dto;
 import com.gest.art.parametre.entite.MouvMag;
 import com.gest.art.security.auditing.AbstractAuditingEntity;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.io.Serializable;
 import java.time.LocalDate;
 
-@Data
 @Builder
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = false)
-public class MouvMagDTO extends AbstractAuditingEntity implements Serializable {
+public class MouvMagDTO extends AbstractAuditingEntity implements Serializable  {
 	private static final long serialVersionUID = 1L;
 
 	private String id;

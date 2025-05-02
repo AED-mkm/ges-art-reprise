@@ -18,10 +18,13 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.GenericGenerator;
@@ -36,7 +39,7 @@ import java.time.LocalDate;
 /**
  * @author Moctar
  */
-@SuppressWarnings("ALL")
+
 @Entity
 @Getter
 @Setter
@@ -47,7 +50,7 @@ import java.time.LocalDate;
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @SQLDelete(sql = "update kg_avoir set deleted = true where id=? ")
 @Where(clause = "deleted=false")
-public class Avoir extends AbstractAuditingEntity implements Serializable {
+public class Avoir  extends AbstractAuditingEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

@@ -1,5 +1,6 @@
 package com.gest.art.parametre.service;
 
+import com.gest.art.parametre.entite.Banque;
 import com.gest.art.parametre.entite.Succursale;
 import com.gest.art.parametre.entite.dto.BanqueDTO;
 import com.gest.art.parametre.entite.dto.SuccursaleDTO;
@@ -28,7 +29,6 @@ public class SuccursaleService {
         this.banqueService = banqueService;
     }
 
-
     /**
      * Save Fournisseur dto.
      *
@@ -36,18 +36,8 @@ public class SuccursaleService {
      * @return the Fournisseur dto
      */
     public SuccursaleDTO save(final SuccursaleDTO succursaleDTO) {
-        log.debug("Request to save Succursale: {}", succursaleDTO);
-
-        BanqueDTO banque = banqueService.findOne(succursaleDTO.getBanqueId());
-        log.debug("Banque trouvée : ID={}", banque.getId());
-
-        Succursale entity = SuccursaleDTO.toEntity(succursaleDTO);
-        log.debug("Entité convertie avant sauvegarde : {}", entity); // Vérifiez les champs ici
-
-        Succursale savedEntity = succursaleRepository.save(entity);
-        log.debug("Entité sauvegardée : ID={}", savedEntity.getId()); // Confirmez l'ID généré
-
-        return SuccursaleDTO.fromEntity(savedEntity);
+        return SuccursaleDTO.fromEntity(succursaleRepository
+                .save(SuccursaleDTO.toEntity(succursaleDTO)));
     }
 
 

@@ -2,6 +2,7 @@ package com.gest.art.parametre.entite.dto;
 import com.gest.art.parametre.entite.BonDeCmdeFour;
 import com.gest.art.security.auditing.AbstractAuditingEntity;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -9,12 +10,12 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Data
 @Builder
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = false)
-public class BonDeCmdeFourDTO extends AbstractAuditingEntity implements Serializable {
+public class BonDeCmdeFourDTO extends AbstractAuditingEntity implements Serializable{
 	private static final long serialVersionUID = 1L;
 
 	private String id;

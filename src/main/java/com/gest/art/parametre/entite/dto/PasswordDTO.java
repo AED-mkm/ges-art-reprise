@@ -4,13 +4,16 @@ package com.gest.art.parametre.entite.dto;
 import com.gest.art.parametre.entite.Password;
 import com.gest.art.security.auditing.AbstractAuditingEntity;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
+
+import java.io.Serializable;
 
 @Builder
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class PasswordDTO extends AbstractAuditingEntity {
+public class PasswordDTO extends AbstractAuditingEntity implements Serializable {
     private String id;
     private String libelle;
     private boolean etat;

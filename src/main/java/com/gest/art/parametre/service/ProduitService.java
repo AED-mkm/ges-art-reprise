@@ -1,6 +1,10 @@
 package com.gest.art.parametre.service;
 
+import com.gest.art.parametre.entite.Magasin;
+import com.gest.art.parametre.entite.Produit;
+import com.gest.art.parametre.entite.dto.MagasinDTO;
 import com.gest.art.parametre.entite.dto.ProduitDTO;
+import com.gest.art.parametre.repository.MagasinRepository;
 import com.gest.art.parametre.repository.ProduitRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -17,24 +21,31 @@ import java.util.stream.Collectors;
 public class ProduitService {
     private final Logger log = LoggerFactory.getLogger(ProduitService.class);
     private final ProduitRepository produitRepository;
+    private final MagasinRepository magasinRepository;
 
 
-    public ProduitService(ProduitRepository produitRepository) {
+    public ProduitService(ProduitRepository produitRepository, MagasinRepository magasinRepository) {
         this.produitRepository = produitRepository;
 
+        this.magasinRepository = magasinRepository;
     }
 
     /**
-     * Save Produit dto.
      *
-     * @param produitDTO the Produit dto
-     * @return the Produit dto
+     * @param produitDTO
+     * @return produitDTO
      */
+
+
     public ProduitDTO save(final ProduitDTO produitDTO) {
         log.debug("Request to save Produit : {}", produitDTO);
-        return ProduitDTO.fromEntity(
-                produitRepository.save(
-                        ProduitDTO.toEntity(produitDTO)));
+        Magasin magasin = magasinRepository.findById(produitDTO.getMagasinId())
+                .orElseThrow(() -> new EntityNotFoundException
+                        ("Magasin non trouvé avec ID: " + produitDTO.getMagasinId()));
+        Produit produit = ProduitDTO.toEntity(produitDTO);
+        produit.setMagasin(magasin);
+        Produit savedProduit = produitRepository.save(produit);
+        return ProduitDTO.fromEntity(savedProduit);
     }
 
     /**

@@ -18,10 +18,13 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
@@ -38,8 +41,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "kg_succ")
-@Cacheable(value = true)
 @SuppressWarnings("common-java:DuplicatedBlocks")
 @SQLDelete(sql = "UPDATE kg_succ SET deleted = true WHERE id=?")
 @Where(clause = "deleted=false")

@@ -7,13 +7,16 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 import java.io.Serializable;
 
-@EqualsAndHashCode(callSuper = true)
-@Data
 @Builder
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class TypeReglementDTO extends AbstractAuditingEntity implements Serializable {
@@ -39,6 +42,10 @@ public class TypeReglementDTO extends AbstractAuditingEntity implements Serializ
 				.id(typeReglement.getId())
 				.code(typeReglement.getCode())
 				.typeRegl(typeReglement.getTypeRegl())
+				/*.createdBy(typeReglement.getCreatedBy())
+				.lastModifiedBy(typeReglement.getLastModifiedBy())
+				.createdDate(typeReglement.getCreatedDate())
+				.lastModifiedDate(typeReglement.getLastModifiedDate())*/
 				.build();
 	}
 

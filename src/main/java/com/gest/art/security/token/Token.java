@@ -8,12 +8,11 @@ import org.hibernate.annotations.GenericGenerator;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Builder
 public class Token extends AbstractAuditingEntity {
-
     @Column(unique = true)
     public String token;
     public boolean revoked;

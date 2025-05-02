@@ -25,6 +25,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.GenericGenerator;
@@ -41,12 +42,12 @@ import java.util.List;
 /**
  * @author Moctar
  */
-@EqualsAndHashCode(callSuper = true)
 @Entity
-@Data
-@Builder
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Table(name = "kg_bon_cmde_four")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @SQLDelete(sql = "update kg_client set deleted = true where id=? ")

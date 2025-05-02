@@ -5,6 +5,7 @@ import com.gest.art.security.auditing.AbstractAuditingEntity;
 import com.gest.art.security.token.Token;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
@@ -15,6 +16,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.*;
+
 
 
 @Entity

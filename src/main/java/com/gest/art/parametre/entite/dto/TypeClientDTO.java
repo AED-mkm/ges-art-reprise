@@ -5,13 +5,18 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 import java.io.Serializable;
 import java.util.List;
 
-@Data
 @Builder
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class TypeClientDTO extends AbstractAuditingEntity implements Serializable {
@@ -47,6 +52,10 @@ public class TypeClientDTO extends AbstractAuditingEntity implements Serializabl
 						typeClient.getClients().stream()
 								.map(client -> client.getId())
 								.toList() : null)
+				/*.createdBy(typeClient.getCreatedBy())
+				.lastModifiedBy(typeClient.getLastModifiedBy())
+				.createdDate(typeClient.getCreatedDate())
+				.lastModifiedDate(typeClient.getLastModifiedDate())*/
 				.build();
 	}
 

@@ -4,15 +4,16 @@ package com.gest.art.parametre.entite.dto;
 import com.gest.art.parametre.entite.*;
 import com.gest.art.security.auditing.AbstractAuditingEntity;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.io.Serializable;
 import java.time.LocalDate;
 
-@Data
 @Builder
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = false)
 public class AvoirDTO extends AbstractAuditingEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
 
@@ -43,7 +44,7 @@ public class AvoirDTO extends AbstractAuditingEntity implements Serializable {
 				.factureId(avoir.getFacture() != null ? avoir.getFacture().getId() : null)
 				.bordereauLivraisonId(avoir.getBordereauLivraison() != null ? avoir.getBordereauLivraison().getId() : null)
 				.magasinId(avoir.getMagasin() != null ? avoir.getMagasin().getId() : null)
-			/*	.createdBy(avoir.getCreatedBy())
+				/*.createdBy(avoir.getCreatedBy())
 				.lastModifiedBy(avoir.getLastModifiedBy())
 				.createdDate(avoir.getCreatedDate())
 				.lastModifiedDate(avoir.getLastModifiedDate())*/

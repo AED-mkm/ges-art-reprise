@@ -7,17 +7,20 @@ import com.gest.art.parametre.entite.Operation;
 import com.gest.art.parametre.entite.Succursale;
 import com.gest.art.security.auditing.AbstractAuditingEntity;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import javax.validation.constraints.NotBlank;
+import java.io.Serializable;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
-@Data
 @Builder
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = false)
-public class SuccursaleDTO extends AbstractAuditingEntity {
+public class SuccursaleDTO extends AbstractAuditingEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private String id;
@@ -44,14 +47,17 @@ public class SuccursaleDTO extends AbstractAuditingEntity {
 				.libelleSucc(succursale.getLibelleSucc())
 				.contactSucc(succursale.getContactSucc())
 				.banqueId(succursale.getBanque() != null ? succursale.getBanque().getId() : null)
-				.operationsIds(succursale.getOperations() != null ?
-						succursale.getOperations().stream()
-								.map(op -> op.getId())
-								.collect(Collectors.toList()) : null)
+				.operationsIds(
+						Optional.ofNullable(succursale.getOperations())
+								.orElse(List.of())
+								.stream()
+								.map(Operation::getId)
+								.collect(Collectors.toList())
+				)
 				/*.createdBy(succursale.getCreatedBy())
-				.lastModifiedBy(succursale.getLastModifiedBy())
-				.createdDate(succursale.getCreatedDate())
-				.lastModifiedDate(succursale.getLastModifiedDate())*/
+			    .lastModifiedBy(succursale.getLastModifiedBy())
+			    .createdDate(succursale.getCreatedDate())
+			    .lastModifiedDate(succursale.getLastModifiedDate())*/
 				.build();
 	}
 
@@ -65,18 +71,15 @@ public class SuccursaleDTO extends AbstractAuditingEntity {
 				.codeSucc(dto.getCodeSucc())
 				.libelleSucc(dto.getLibelleSucc())
 				.contactSucc(dto.getContactSucc())
-				.banque(
-						dto.getBanqueId() != null ?
-								Banque.builder().id(dto.getBanqueId()).build() :
-								null
-				)
+				.banque(dto.getBanqueId() != null ? Banque.builder().id(dto.getBanqueId()).build() : null)
 				.operations(
-						dto.getOperationsIds() != null ?
-								dto.getOperationsIds().stream()
-										.map(opId -> Operation.builder().id(opId).build())
-										.collect(Collectors.toList()) :
-								null
+						Optional.ofNullable(dto.getOperationsIds())
+								.orElse(List.of())
+								.stream()
+								.map(id -> Operation.builder().id(id).build())
+								.collect(Collectors.toList())
 				)
 				.build();
 	}
+
 }

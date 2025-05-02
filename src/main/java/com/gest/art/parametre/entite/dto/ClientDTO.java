@@ -4,18 +4,20 @@ package com.gest.art.parametre.entite.dto;
 import com.gest.art.parametre.entite.Client;
 import com.gest.art.security.auditing.AbstractAuditingEntity;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Data
+
 @Builder
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = false)
-public class ClientDTO extends AbstractAuditingEntity implements Serializable {
+public class ClientDTO extends AbstractAuditingEntity implements Serializable{
 	private static final long serialVersionUID = 1L;
 
 	private String id;
@@ -54,10 +56,6 @@ public class ClientDTO extends AbstractAuditingEntity implements Serializable {
 						client.getFactures().stream()
 								.map(facture -> facture.getId())
 								.collect(Collectors.toList()) : null)
-			/*	.createdBy(client.getCreatedBy())
-				.lastModifiedBy(client.getLastModifiedBy())
-				.createdDate(client.getCreatedDate())
-				.lastModifiedDate(client.getLastModifiedDate())*/
 				.build();
 	}
 
@@ -65,7 +63,6 @@ public class ClientDTO extends AbstractAuditingEntity implements Serializable {
 		if (dto == null) {
 			return null;
 		}
-
 		return Client.builder()
 				.id(dto.getId())
 				.codeClient(dto.getCodeClient())

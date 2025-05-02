@@ -1,22 +1,29 @@
 package com.gest.art.parametre.entite.dto;
 
 import com.gest.art.parametre.entite.Fournisseur;
+import com.gest.art.security.auditing.AbstractAuditingEntity;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 import java.io.Serializable;
 import java.util.List;
 
-@Data
+
 @Builder
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class FournisseurDTO implements Serializable {
+public class FournisseurDTO extends AbstractAuditingEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private String id;
@@ -31,12 +38,11 @@ public class FournisseurDTO implements Serializable {
     @Size(max = 200, message = "L'adresse ne doit pas dépasser 200 caractères")
     private String adresseFour;
 
-    @Pattern(regexp = "^\\+?[0-9. ()-]{7,25}$", message = "Numéro de contact invalide")
     private String contactFour;
 
     private String magasinId;
     private List<String> bonDeCmdeFourIds;
-    private List<String> entreIds;
+    private List<EntreDTO> entreDTOS;
 
     // Mapping from Entity to DTO
     public static FournisseurDTO fromEntity(Fournisseur fournisseur) {
@@ -56,10 +62,14 @@ public class FournisseurDTO implements Serializable {
                         fournisseur.getBonDeCmdeFours().stream()
                                 .map(bon -> bon.getId())
                                 .toList() : null)
-                .entreIds(fournisseur.getEntres() != null ?
+                .entreDTOS(fournisseur.getEntres() != null ?
                         fournisseur.getEntres().stream()
-                                .map(entre -> entre.getId())
+                                .map(EntreDTO::fromEntity)
                                 .toList() : null)
+              /*  .createdBy(fournisseur.getCreatedBy())
+                .lastModifiedBy(fournisseur.getLastModifiedBy())
+                .createdDate(fournisseur.getCreatedDate())
+                .lastModifiedDate(fournisseur.getLastModifiedDate())*/
                 .build();
     }
 

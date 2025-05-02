@@ -6,16 +6,21 @@ import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
 
-@Data
 @Builder
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class TransfertProduitDTO extends AbstractAuditingEntity implements Serializable {
+public class TransfertProduitDTO extends AbstractAuditingEntity implements Serializable{
 	private static final long serialVersionUID = 1L;
 
 	private String id;
@@ -43,6 +48,10 @@ public class TransfertProduitDTO extends AbstractAuditingEntity implements Seria
 				.produitId(transfertProduit.getProduit() != null ?
 						transfertProduit.getProduit().getId() : null)
 				.quantiteTransfert(transfertProduit.getQuantiteTransfert())
+				/*.createdBy(transfertProduit.getCreatedBy())
+				.lastModifiedBy(transfertProduit.getLastModifiedBy())
+				.createdDate(transfertProduit.getCreatedDate())
+				.lastModifiedDate(transfertProduit.getLastModifiedDate())*/
 				.build();
 	}
 

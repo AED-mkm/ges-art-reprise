@@ -5,14 +5,15 @@ package com.gest.art.parametre.entite.dto;
 import com.gest.art.parametre.entite.ProduitBordLiv;
 import com.gest.art.security.auditing.AbstractAuditingEntity;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.io.Serializable;
 
-@Data
 @Builder
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = false)
 public class ProduitBordLivDTO extends AbstractAuditingEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
 

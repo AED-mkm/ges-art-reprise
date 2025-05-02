@@ -8,6 +8,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.*;
 
@@ -34,9 +35,10 @@ public class Magasin extends AbstractAuditingEntity implements Serializable {
     )
     @Column(name = "id", updatable = false, nullable = false)
     private String id;
+    @Column(name = "kg_code_magasin")
     private String codeMagasin;
     @NotBlank(message = "le nom du magasin est obligatoire")
-    @Column(name = "nom_mag")
+    @Column(name = "kg_libelle")
     private String nomMagasin;
     @Column(name = "adresse_mag")
     private String adresseMagasin;
@@ -53,7 +55,7 @@ public class Magasin extends AbstractAuditingEntity implements Serializable {
     @JsonIgnore
     @OneToMany(mappedBy = "magasin")
     private List<Vente> ventes;
-    @OneToMany(mappedBy = "magasin")
     @JsonIgnore
+    @OneToMany(mappedBy = "magasin")
     private List<User> users;
 }

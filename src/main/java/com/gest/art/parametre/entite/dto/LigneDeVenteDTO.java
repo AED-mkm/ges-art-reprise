@@ -3,17 +3,18 @@ package com.gest.art.parametre.entite.dto;
 import com.gest.art.parametre.entite.LigneDeVente;
 import com.gest.art.security.auditing.AbstractAuditingEntity;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import javax.validation.constraints.Positive;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
-@Data
 @Builder
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = false)
-public class LigneDeVenteDTO extends AbstractAuditingEntity implements Serializable {
+public class LigneDeVenteDTO  extends AbstractAuditingEntity implements Serializable{
 	private static final long serialVersionUID = 1L;
 
 	private String id;

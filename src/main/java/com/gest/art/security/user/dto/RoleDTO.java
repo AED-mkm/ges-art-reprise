@@ -3,6 +3,7 @@ package com.gest.art.security.user.dto;
 import com.gest.art.security.auditing.AbstractAuditingEntity;
 import com.gest.art.security.user.Role;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 @Builder
 @Getter

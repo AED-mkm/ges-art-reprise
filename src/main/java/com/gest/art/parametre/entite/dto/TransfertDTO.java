@@ -9,15 +9,20 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Data
 @Builder
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class TransfertDTO extends AbstractAuditingEntity implements Serializable {
@@ -55,6 +60,10 @@ public class TransfertDTO extends AbstractAuditingEntity implements Serializable
 						transfert.getTransfertProduits().stream()
 								.map(TransfertProduit::getId)
 								.collect(Collectors.toList()) : null)
+				/*.createdBy(transfert.getCreatedBy())
+				.lastModifiedBy(transfert.getLastModifiedBy())
+				.createdDate(transfert.getCreatedDate())
+				.lastModifiedDate(transfert.getLastModifiedDate())*/
 				.build();
 	}
 

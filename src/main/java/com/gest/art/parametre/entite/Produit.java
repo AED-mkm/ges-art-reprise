@@ -6,6 +6,7 @@ import com.gest.art.security.auditing.AbstractAuditingEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
@@ -13,13 +14,13 @@ import org.hibernate.annotations.Where;
 import java.math.BigDecimal;
 import java.util.List;
 
-@EqualsAndHashCode(callSuper = true)
 @Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "kg_produits")
 @Builder
+@Table(name = "kg_produits")
 @Cacheable(value = true)
 @SQLDelete(sql = "UPDATE kg_produits SET deleted = true WHERE id=?")
 @Where(clause = "deleted=false")
@@ -57,9 +58,9 @@ public class Produit extends AbstractAuditingEntity {
     private BigDecimal coutEmballage = BigDecimal.ZERO;
     @Column(name = "type_embal")
     private String typeEmballage;
+    @JsonIgnore
     @OneToMany(mappedBy = "produit")
     private List<ProdBonCmdeFour> prodBonCmdeFour;
-    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "mag_id", referencedColumnName = "id")
     @JsonIgnoreProperties(value = "produit", allowSetters = true)

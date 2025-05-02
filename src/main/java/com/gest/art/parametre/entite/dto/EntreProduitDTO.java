@@ -3,26 +3,34 @@ package com.gest.art.parametre.entite.dto;
 
 import com.gest.art.parametre.entite.EntreProduit;
 import com.gest.art.security.auditing.AbstractAuditingEntity;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
+import javax.validation.constraints.Positive;
 import java.math.BigDecimal;
 import java.io.Serializable;
 
-@Data
 @Builder
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = false)
-public class EntreProduitDTO extends AbstractAuditingEntity implements Serializable {
+public class EntreProduitDTO extends AbstractAuditingEntity implements Serializable{
 	private static final long serialVersionUID = 1L;
 
 	private String id;
+	@Positive
 	private BigDecimal quantite;
+	@Positive
 	private BigDecimal prixEntre;
 
 	// Références aux IDs des entités liées
 	private String entreId;
+	@NotBlank
 	private String produitId;
+
+
 
 	public static EntreProduitDTO fromEntity(EntreProduit entreProduit) {
 		if (entreProduit == null) {

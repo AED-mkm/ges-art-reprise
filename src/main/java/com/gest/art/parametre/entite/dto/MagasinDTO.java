@@ -4,16 +4,16 @@ import com.gest.art.parametre.entite.Magasin;
 import com.gest.art.security.auditing.AbstractAuditingEntity;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.io.Serializable;
 import java.util.List;
 import java.util.stream.Collectors;
-
-@Data
 @Builder
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = false)
 public class MagasinDTO extends AbstractAuditingEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -62,7 +62,7 @@ public class MagasinDTO extends AbstractAuditingEntity implements Serializable {
                         magasin.getUsers().stream()
                                 .map(user -> user.getId())
                                 .collect(Collectors.toList()) : null)
-               /* .createdBy(magasin.getCreatedBy())
+                /* .createdBy(magasin.getCreatedBy())
                 .lastModifiedBy(magasin.getLastModifiedBy())
                 .createdDate(magasin.getCreatedDate())
                 .lastModifiedDate(magasin.getLastModifiedDate())*/

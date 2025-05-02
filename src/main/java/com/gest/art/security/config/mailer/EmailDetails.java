@@ -5,6 +5,7 @@ import com.gest.art.security.auditing.AbstractAuditingEntity;
 import com.gest.art.security.user.User;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;

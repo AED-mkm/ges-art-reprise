@@ -2,15 +2,18 @@ package com.gest.art.parametre.entite.dto;
 import com.gest.art.parametre.entite.Banque;
 import com.gest.art.security.auditing.AbstractAuditingEntity;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 import java.util.List;
 
-@EqualsAndHashCode(callSuper = true)
-@Data
 @Builder
-public class BanqueDTO extends AbstractAuditingEntity {
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class BanqueDTO extends AbstractAuditingEntity implements Serializable{
 	private static final long serialVersionUID = 1L;
 
 	private String id;
@@ -35,6 +38,10 @@ public class BanqueDTO extends AbstractAuditingEntity {
 				.codeBanque(banque.getCodeBanque())
 				.libellebanque(banque.getLibellebanque())
 				.contact(banque.getContact())
+				/*.createdBy(banque.getCreatedBy())
+				.lastModifiedBy(banque.getLastModifiedBy())
+				.createdDate(banque.getCreatedDate())
+				.lastModifiedDate(banque.getLastModifiedDate())*/
 				.build();
 	}
 
@@ -42,7 +49,7 @@ public class BanqueDTO extends AbstractAuditingEntity {
 		if (dto == null) return null;
 
 		return Banque.builder()
-				.id(dto.getId())
+				.id(dto.id)
 				.codeBanque(dto.getCodeBanque())
 				.libellebanque(dto.getLibellebanque())
 				.contact(dto.getContact())
