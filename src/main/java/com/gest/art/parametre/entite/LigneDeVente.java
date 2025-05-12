@@ -62,4 +62,8 @@ public class LigneDeVente extends AbstractAuditingEntity implements Serializable
 	@JoinColumn(name = "vente", referencedColumnName = "id")
 	@JsonIgnoreProperties(value = "vente", allowSetters = true)
 	private Vente vente;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "produit", referencedColumnName = "id")
+	@JsonIgnoreProperties(value = "produit", allowSetters = true)
+	private Produit produit;
 }

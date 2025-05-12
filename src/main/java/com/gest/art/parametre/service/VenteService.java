@@ -6,6 +6,7 @@ import com.gest.art.parametre.entite.LigneDeVente;
 import com.gest.art.parametre.entite.Magasin;
 import com.gest.art.parametre.entite.Produit;
 import com.gest.art.parametre.entite.Vente;
+import com.gest.art.parametre.entite.dto.ClientDTO;
 import com.gest.art.parametre.entite.dto.LigneDeVenteDTO;
 import com.gest.art.parametre.entite.dto.VenteDTO;
 import com.gest.art.parametre.entite.enums.TypeVente;
@@ -30,6 +31,8 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -44,7 +47,6 @@ public class VenteService {
     private final LigneDeVenteRepository ligneDeVenteRepository;
 
     private final FactureRepository factureRepository;
-
 
     @Autowired
     private NumeroService numeroService;
@@ -108,17 +110,30 @@ public class VenteService {
                 ligneDTO.setPrixUnitaire(produit.getPrixActuel());
                 BigDecimal prixTotal = ligneDTO.getPrixUnitaire().multiply(ligneDTO.getQteVente());
                 produit.setStockProduit(produit.getStockProduit().subtract(ligneDTO.getQteVente()));
+                ligneDTO.setPrixTotal(prixTotal);
                 produitRepository.save(produit);
-                LigneDeVente ligne = ligneDeVenteMapper.toEntity(ligneDTO);
+
+               /* LigneDeVente ligne = ligneDeVenteMapper.toEntity(ligneDTO);
                 ligne.setQteVente(ligneDTO.getQteVente());
                 ligne.setPrixUnitaire(ligneDTO.getPrixUnitaire());
                 ligneDTO.setPrixTotal(ligneDTO.getPrixUnitaire().multiply(ligneDTO.getQteVente()));
                 ligne.setVente(vente);
                 ligneDTO.setVenteId(ligneDTO.getVenteId());
+                prixTotalVente = prixTotalVente.add(prixTotal);*/
+
+                // Création de la ligne
+                LigneDeVente ligne = new LigneDeVente();
+                ligne.setProduit(produit);
+                ligne.setQteVente(ligneDTO.getQteVente());
+                ligne.setPrixUnitaire(ligneDTO.getPrixUnitaire());
+                ligne.setVente(vente);
+                ligne.setPrixTotal(prixTotal);
                 prixTotalVente = prixTotalVente.add(prixTotal);
                 ligneDeVenteRepository.save(ligne);
                 log.info( " montant par ligne AAAAAAAAAA:"+prixTotal );
             }
+
+
 
             // Calcul du prix total HT
             BigDecimal prixTotalHT = prixTotalVente;
@@ -152,6 +167,12 @@ public class VenteService {
             factureRepository.save(facture);
             vente.setObjet("FAC " + facture.getNumFacture());
             vente.setFactureId(facture.getId());
+
+            // Mise à jour de l'objet Vente
+
+            vente.setMontantTva(vente.getMontantTva());
+            vente.setMontantBic(vente.getMontantBic());
+            vente.setMontantTTC(vente.getMontantTTC());
             venteRepository.save(vente);
             return venteDTO;
 
@@ -165,6 +186,61 @@ public class VenteService {
         }
     }
 
+    public void ajouterProduitAVente(VenteDTO venteDTO, String produitId, BigDecimal quantite) {
+        Produit produit = produitRepository.findById(produitId)
+                .orElseThrow(() -> new ProduitNotFoundException("Produit non trouvé"));
+
+        // Vérifier si le produit existe déjà dans les lignes
+        Optional<LigneDeVenteDTO> ligneExistante = venteDTO.getLignesDeVenteIds().stream()
+                .filter(l -> l.getProduitId().equals(produitId))
+                .findFirst();
+
+        if (ligneExistante.isPresent()) {
+            // Mise à jour de la quantité si le produit existe déjà
+            LigneDeVenteDTO ligne = ligneExistante.get();
+            BigDecimal nouvelleQte = ligne.getQteVente().add(quantite);
+            ligne.setQteVente(nouvelleQte);
+            ligne.setPrixTotal(ligne.getPrixUnitaire().multiply(nouvelleQte));
+        } else {
+
+            // Création d'une nouvelle ligne
+
+            LigneDeVenteDTO nouvelleLigne = new LigneDeVenteDTO();
+            nouvelleLigne.setProduitId(produit.getId());
+            nouvelleLigne.setCodeprod(produit.getCodeprod()); // Remplissage des infos produit
+            nouvelleLigne.setLibelle(produit.getLibelle());
+            nouvelleLigne.setQteVente(quantite);
+            nouvelleLigne.setPrixUnitaire(produit.getPrixActuel());
+            nouvelleLigne.setPrixTotal(produit.getPrixActuel().multiply(quantite));
+            venteDTO.getLignesDeVenteIds().add(nouvelleLigne);
+        }
+    }
+
+    public void retirerProduitDeVente(VenteDTO venteDTO, String produitId) {
+        venteDTO.setLignesDeVenteIds(
+                venteDTO.getLignesDeVenteIds().stream()
+                        .filter(l -> !l.getProduitId().equals(produitId))
+                        .collect( Collectors.toList())
+        );
+    }
+
+    public void modifierQuantiteProduit(VenteDTO venteDTO, String produitId, BigDecimal nouvelleQuantite) {
+        venteDTO.getLignesDeVenteIds().stream()
+                .filter(l -> l.getProduitId().equals(produitId))
+                .findFirst()
+                .ifPresent(l -> {
+                    l.setQteVente(nouvelleQuantite);
+                    l.setPrixTotal(l.getPrixUnitaire().multiply(nouvelleQuantite));
+                });
+    }
+
+
+    public VenteDTO getVenteById(String venteId) {
+        log.debug("Request to get TypeClientDTO : {}", venteId);
+        return venteRepository.findById(venteId)
+                .map( VenteDTO::fromEntity)
+                .orElseThrow(() -> new EntityNotFoundException("non trouver"));
+    }
 
 
 }

@@ -21,6 +21,10 @@ public class LigneDeVenteDTO  extends AbstractAuditingEntity implements Serializ
 
 	private String produitId;
 
+	private Integer codeprod;
+
+	private String libelle;
+
 	@Positive
 	private BigDecimal qteVente = BigDecimal.ZERO;
 
