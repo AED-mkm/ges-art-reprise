@@ -1,6 +1,7 @@
 package com.gest.art.parametre.entite;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.gest.art.parametre.entite.enums.TypeVente;
 import com.gest.art.security.auditing.AbstractAuditingEntity;
@@ -77,6 +78,7 @@ public class Vente extends AbstractAuditingEntity implements Serializable {
     @JoinColumn(name = "client", referencedColumnName = "id")
     @JsonIgnoreProperties(value = "vente", allowSetters = true)
     private Client client;
+    @JsonIgnore
     @OneToMany(mappedBy = "vente")
     private List<LigneDeVente> lignesDeVente;
     @ManyToOne(fetch = FetchType.LAZY)
@@ -91,5 +93,5 @@ public class Vente extends AbstractAuditingEntity implements Serializable {
     private BigDecimal montantBic = BigDecimal.ZERO;
     @Column(name = "montant_ttc")
     private BigDecimal montantTTC = BigDecimal.ZERO;
-    private Long factureId;
+    private String factureId;
 }

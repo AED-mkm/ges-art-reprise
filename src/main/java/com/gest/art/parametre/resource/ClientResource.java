@@ -100,8 +100,8 @@ public class ClientResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of Fournisseurs in body.
      */
     @GetMapping("/clients")
-    public List<ClientDTO> getAllBanque() {
-        log.debug("REST request to get all Fournisseurs");
+    public List<ClientDTO> getAllClients() {
+        log.debug("REST request to get all clients");
         return clientService.findAll();
     }
 

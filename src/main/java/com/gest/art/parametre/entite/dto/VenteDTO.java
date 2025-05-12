@@ -28,13 +28,13 @@ public class VenteDTO extends AbstractAuditingEntity implements Serializable {
 	private BigDecimal montantTva;
 	private BigDecimal montantBic;
 	private BigDecimal montantTTC;
-	private Long factureId;
-
+	private String factureId;
+	private List<String> taxesCochees;
 	// Références aux IDs des entités liées
 	private String magasinId;
 	private String clientId;
 	private String taxeId;
-	private List<String> lignesDeVenteIds;
+	private List<LigneDeVenteDTO> lignesDeVenteIds;
 
 	public static VenteDTO fromEntity(Vente vente) {
 		if (vente == null) {
@@ -54,14 +54,6 @@ public class VenteDTO extends AbstractAuditingEntity implements Serializable {
 				.magasinId(vente.getMagasin() != null ? vente.getMagasin().getId(): null)
 				.clientId(vente.getClient() != null ? vente.getClient().getId() : null)
 				.taxeId(vente.getTaxe() != null ? vente.getTaxe().getId() : null)
-				.lignesDeVenteIds(vente.getLignesDeVente() != null ?
-						vente.getLignesDeVente().stream()
-								.map(ligne -> ligne.getId())
-								.collect(Collectors.toList()) : null)
-				/*.createdBy(vente.getCreatedBy())
-				.lastModifiedBy(vente.getLastModifiedBy())
-				.createdDate(vente.getCreatedDate())
-				.lastModifiedDate(vente.getLastModifiedDate())*/
 				.build();
 	}
 

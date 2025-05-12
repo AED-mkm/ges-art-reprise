@@ -56,10 +56,6 @@ public class TaxeDTO extends AbstractAuditingEntity implements Serializable {
 						taxe.getVentes().stream()
 								.map(Vente::getId)
 								.collect(Collectors.toList()) : null)
-				/*.createdBy(taxe.getCreatedBy())
-				.lastModifiedBy(taxe.getLastModifiedBy())
-				.createdDate(taxe.getCreatedDate())
-				.lastModifiedDate(taxe.getLastModifiedDate())*/
 				.build();
 	}
 

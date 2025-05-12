@@ -19,13 +19,15 @@ public class LigneDeVenteDTO  extends AbstractAuditingEntity implements Serializ
 
 	private String id;
 
-	@Positive
-	private BigDecimal qteVente;
+	private String produitId;
 
 	@Positive
-	private BigDecimal prixUnitaire;
+	private BigDecimal qteVente = BigDecimal.ZERO;
 
-	private BigDecimal prixTotal;
+	@Positive
+	private BigDecimal prixUnitaire = BigDecimal.ZERO;
+
+	private BigDecimal prixTotal = BigDecimal.ZERO;
 
 	// Référence à l'ID de la vente
 	private String venteId;
@@ -41,10 +43,6 @@ public class LigneDeVenteDTO  extends AbstractAuditingEntity implements Serializ
 				.prixUnitaire(ligneDeVente.getPrixUnitaire())
 				.prixTotal(ligneDeVente.getPrixTotal())
 				.venteId(ligneDeVente.getVente() != null ? ligneDeVente.getVente().getId() : null)
-				/*.createdBy(ligneDeVente.getCreatedBy())
-				.lastModifiedBy(ligneDeVente.getLastModifiedBy())
-				.createdDate(ligneDeVente.getCreatedDate())
-				.lastModifiedDate(ligneDeVente.getLastModifiedDate())*/
 				.build();
 	}
 
