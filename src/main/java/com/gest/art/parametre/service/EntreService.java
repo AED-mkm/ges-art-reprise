@@ -1,5 +1,6 @@
 package com.gest.art.parametre.service;
 
+import com.gest.art.parametre.entite.Banque;
 import com.gest.art.parametre.entite.Entre;
 import com.gest.art.parametre.entite.EntreProduit;
 import com.gest.art.parametre.entite.Fournisseur;
@@ -20,6 +21,10 @@ import org.hibernate.service.spi.ServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -167,6 +172,12 @@ public class EntreService {
         if (entreProduit.getPrixEntre() == null || entreProduit.getPrixEntre().compareTo(BigDecimal.ZERO) <= 0) {
             throw new ValidationException("Le prix d'entrée doit être positif");
         }
+    }
+
+    public Page<Entre> findPage(final int pageNo, final int pageSize, final String sortBy) {
+        Sort sort = Sort.by(Sort.Direction.DESC, sortBy);
+        Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+        return entreRepository.findAll(pageable);
     }
 
 }

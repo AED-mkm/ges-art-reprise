@@ -1,5 +1,6 @@
 package com.gest.art.parametre.service;
 
+import com.gest.art.parametre.entite.Banque;
 import com.gest.art.parametre.entite.Magasin;
 import com.gest.art.parametre.entite.Produit;
 import com.gest.art.parametre.entite.dto.MagasinDTO;
@@ -10,6 +11,10 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -102,5 +107,11 @@ public class ProduitService {
             return;
         }
         produitRepository.deleteById(String.valueOf(id));
+    }
+
+    public Page<Produit> findPage(final int pageNo, final int pageSize, final String sortBy) {
+        Sort sort = Sort.by(Sort.Direction.DESC, sortBy);
+        Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+        return produitRepository.findAll(pageable);
     }
 }

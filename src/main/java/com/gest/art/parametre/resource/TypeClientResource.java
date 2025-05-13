@@ -1,5 +1,7 @@
 package com.gest.art.parametre.resource;
 
+import com.gest.art.parametre.entite.Banque;
+import com.gest.art.parametre.entite.TypeClient;
 import com.gest.art.parametre.entite.dto.BanqueDTO;
 import com.gest.art.parametre.entite.dto.TypeClientDTO;
 import com.gest.art.parametre.repository.TypeClientRepository;
@@ -7,6 +9,7 @@ import com.gest.art.parametre.service.TypeClientService;
 import com.gest.art.security.config.HeaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -132,5 +135,10 @@ public class TypeClientResource {
                 .noContent()
                 .headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id))
                 .build();
+    }
+
+    @GetMapping("typesclients/pageAll")
+    public ResponseEntity<Page<TypeClient>> allpage() {
+        return new ResponseEntity<>(typeClientService.findPage(0, 5, "createdDate"), HttpStatus.OK);
     }
 }

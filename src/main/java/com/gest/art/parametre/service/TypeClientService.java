@@ -1,5 +1,7 @@
 package com.gest.art.parametre.service;
 
+import com.gest.art.parametre.entite.Banque;
+import com.gest.art.parametre.entite.TypeClient;
 import com.gest.art.parametre.entite.dto.FournisseurDTO;
 import com.gest.art.parametre.entite.dto.TypeClientDTO;
 import com.gest.art.parametre.repository.TypeClientRepository;
@@ -7,6 +9,10 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -91,5 +97,11 @@ public class TypeClientService {
             return;
         }
         typeClientRepository.deleteById(id);
+    }
+
+    public Page<TypeClient> findPage(final int pageNo, final int pageSize, final String sortBy) {
+        Sort sort = Sort.by(Sort.Direction.DESC, sortBy);
+        Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+        return typeClientRepository.findAll(pageable);
     }
 }

@@ -1,5 +1,7 @@
 package com.gest.art.parametre.resource;
 
+import com.gest.art.parametre.entite.Banque;
+import com.gest.art.parametre.entite.Vente;
 import com.gest.art.parametre.entite.dto.EntreDTO;
 import com.gest.art.parametre.entite.dto.VenteDTO;
 import com.gest.art.parametre.service.VenteService;
@@ -8,10 +10,12 @@ import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -87,6 +91,12 @@ public class VenteResource {
         // Sauvegarder les modifications
         VenteDTO updatedVente = venteService.createAndUpdate(venteDTO);
         return ResponseEntity.ok(updatedVente);
+    }
+
+
+    @GetMapping("ventes/pageAll")
+    public ResponseEntity<Page<Vente>> allpage() {
+        return new ResponseEntity<>(venteService.findPage(0, 5, "createdDate"), HttpStatus.OK);
     }
 
 

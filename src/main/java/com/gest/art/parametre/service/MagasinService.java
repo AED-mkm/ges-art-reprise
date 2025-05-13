@@ -1,11 +1,17 @@
 package com.gest.art.parametre.service;
 
+import com.gest.art.parametre.entite.Banque;
+import com.gest.art.parametre.entite.Magasin;
 import com.gest.art.parametre.entite.dto.MagasinDTO;
 import com.gest.art.parametre.repository.MagasinRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -93,6 +99,12 @@ public class MagasinService {
             return;
         }
         magasinRepository.deleteById(id);
+    }
+
+    public Page<Magasin> findPage(final int pageNo, final int pageSize, final String sortBy) {
+        Sort sort = Sort.by(Sort.Direction.DESC, sortBy);
+        Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+        return magasinRepository.findAll(pageable);
     }
 
 }

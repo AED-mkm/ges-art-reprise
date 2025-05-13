@@ -1,5 +1,6 @@
 package com.gest.art.parametre.service;
 
+import com.gest.art.parametre.entite.Banque;
 import com.gest.art.parametre.entite.Client;
 import com.gest.art.parametre.entite.Facture;
 import com.gest.art.parametre.entite.LigneDeVente;
@@ -27,6 +28,10 @@ import org.hibernate.service.spi.ServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -240,6 +245,13 @@ public class VenteService {
         return venteRepository.findById(venteId)
                 .map( VenteDTO::fromEntity)
                 .orElseThrow(() -> new EntityNotFoundException("non trouver"));
+    }
+
+
+    public Page<Vente> findPage(final int pageNo, final int pageSize, final String sortBy) {
+        Sort sort = Sort.by(Sort.Direction.DESC, sortBy);
+        Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+        return venteRepository.findAll(pageable);
     }
 
 

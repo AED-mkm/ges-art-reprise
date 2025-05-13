@@ -1,11 +1,14 @@
 package com.gest.art.parametre.resource;
 
+import com.gest.art.parametre.entite.Banque;
+import com.gest.art.parametre.entite.Produit;
 import com.gest.art.parametre.entite.dto.ProduitDTO;
 import com.gest.art.parametre.repository.ProduitRepository;
 import com.gest.art.parametre.service.ProduitService;
 import com.gest.art.security.config.HeaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -122,5 +125,10 @@ public class ProduitResource {
                 .noContent()
                 .headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id))
                 .build();
+    }
+
+    @GetMapping("produits/pageAll")
+    public ResponseEntity<Page<Produit>> allpage() {
+        return new ResponseEntity<>(produitService.findPage(0, 5, "createdDate"), HttpStatus.OK);
     }
 }

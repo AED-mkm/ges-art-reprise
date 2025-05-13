@@ -1,5 +1,7 @@
 package com.gest.art.parametre.resource;
 
+import com.gest.art.parametre.entite.Banque;
+import com.gest.art.parametre.entite.Entre;
 import com.gest.art.parametre.entite.dto.EntreDTO;
 import com.gest.art.parametre.entite.dto.MagasinDTO;
 import com.gest.art.parametre.service.EntreService;
@@ -8,6 +10,7 @@ import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -61,6 +64,11 @@ public class EntreResource {
                 .created(new URI("/api/v1/entres/" + result.getId()))
                 .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId()))
                 .body(result);
+    }
+
+    @GetMapping("entres/pageAll")
+    public ResponseEntity<Page<Entre>> allpage() {
+        return new ResponseEntity<>(entreService.findPage(0, 5, "createdDate"), HttpStatus.OK);
     }
 
 

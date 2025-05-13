@@ -1,11 +1,17 @@
 package com.gest.art.parametre.service;
 
+import com.gest.art.parametre.entite.Banque;
+import com.gest.art.parametre.entite.LigneDeVente;
 import com.gest.art.parametre.entite.dto.FournisseurDTO;
 import com.gest.art.parametre.entite.dto.LigneDeVenteDTO;
 import com.gest.art.parametre.repository.LigneDeVenteRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -49,6 +55,12 @@ public class LigneVenteService {
 			return;
 		}
 		ligneDeVenteRepository.deleteById(id);
+	}
+
+	public Page<LigneDeVente> findPage(final int pageNo, final int pageSize, final String sortBy) {
+		Sort sort = Sort.by(Sort.Direction.DESC, sortBy);
+		Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+		return ligneDeVenteRepository.findAll(pageable);
 	}
 
 
