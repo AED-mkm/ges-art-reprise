@@ -1,9 +1,13 @@
 package com.gest.art.parametre.entite;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.gest.art.parametre.entite.enums.SensOp;
+import com.gest.art.parametre.entite.enums.TypeVente;
 import com.gest.art.security.auditing.AbstractAuditingEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -25,6 +29,7 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 
@@ -57,9 +62,10 @@ public class Operation extends AbstractAuditingEntity implements Serializable {
     @Column(name = "date_op")
     private LocalDate dateOP;
     @Column(name = "montant_op")
-    private double montantOp;
+    private BigDecimal montantOp;
     @Column(name = "sens_op")
-    private String sensOp;
+    @Enumerated(EnumType.STRING)
+    private SensOp sensOp;
     @Column(name = "observ_op")
     private String observationOp;
     @ManyToOne(fetch = FetchType.LAZY)

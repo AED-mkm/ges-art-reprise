@@ -3,12 +3,16 @@ package com.gest.art.parametre.entite.dto;
 
 
 import com.gest.art.parametre.entite.BordereauLivraison;
+import com.gest.art.parametre.entite.ProduitBordLiv;
 import com.gest.art.security.auditing.AbstractAuditingEntity;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Builder
 @Getter
@@ -21,52 +25,45 @@ public class BordereauLivraisonDTO extends AbstractAuditingEntity implements Ser
 	private String id;
 	private String numBordereau;
 	private LocalDate dateBordereau;
-	private double totalBordereau;
-	private double totalGeneral;
-	private double totalRemise;
-	private double netApayer;
-	private double totalTransport;
-	private double totalEmballage;
-	private double montantPayer;
-	private double tauxTva;
+	private BigDecimal netApayer = BigDecimal.ZERO ;
+	private BigDecimal totalTransport = BigDecimal.ZERO;
+	private BigDecimal totalEmballage = BigDecimal.ZERO;
+	private BigDecimal montantPayer = BigDecimal.ZERO;
+	private BigDecimal tauxTva = BigDecimal.ZERO;
 	private String etatBordereau;
-	private double montantTva;
-	private int tauxBic;
-	private double montantBic;
-	private double montantTtc;
+	private BigDecimal montantTva = BigDecimal.ZERO;
+	private BigDecimal tauxBic = BigDecimal.ZERO;
+	private BigDecimal montantBic = BigDecimal.ZERO;
+	private BigDecimal montantTtc = BigDecimal.ZERO;
 
 	// Références aux IDs des entités liées
 	private String clientId;
 	private String magasinId;
+	private List<ProduitBordLivDTO> produitBordLivs;
+	private List<String> taxesCochees;
 
-	public static BordereauLivraisonDTO fromEntity(BordereauLivraison bordereau) {
-		if (bordereau == null) {
+
+	public static BordereauLivraisonDTO fromEntity(BordereauLivraison bordereauLivraison) {
+		if (bordereauLivraison == null) {
 			return null;
 		}
 
 		return BordereauLivraisonDTO.builder()
-				.id(bordereau.getId())
-				.numBordereau(bordereau.getNumBordereau())
-				.dateBordereau(bordereau.getDateBordereau())
-				.totalBordereau(bordereau.getTotalBordereau())
-				.totalGeneral(bordereau.getTotalGeneral())
-				.totalRemise(bordereau.getTotalRemise())
-				.netApayer(bordereau.getNetApayer())
-				.totalTransport(bordereau.getTotalTransport())
-				.totalEmballage(bordereau.getTotalEmballage())
-				.montantPayer(bordereau.getMontantPayer())
-				.tauxTva(bordereau.getTauxTva())
-				.etatBordereau(bordereau.getEtatBordereau())
-				.montantTva(bordereau.getMontantTva())
-				.tauxBic(bordereau.getTauxBic())
-				.montantBic(bordereau.getMontantBic())
-				.montantTtc(bordereau.getMontantTtc())
-				.clientId(bordereau.getClient() != null ? bordereau.getClient().getId() : null)
-				.magasinId(bordereau.getMagasin() != null ? bordereau.getMagasin().getId() : null)
-				/*.createdBy(bordereau.getCreatedBy())
-				.lastModifiedBy(bordereau.getLastModifiedBy())
-				.createdDate(bordereau.getCreatedDate())
-				.lastModifiedDate(bordereau.getLastModifiedDate())*/
+				.id(bordereauLivraison.getId())
+				.numBordereau(bordereauLivraison.getNumBordereau())
+				.dateBordereau(bordereauLivraison.getDateBordereau())
+				.netApayer(bordereauLivraison.getNetApayer())
+				.totalTransport(bordereauLivraison.getTotalTransport())
+				.totalEmballage(bordereauLivraison.getTotalEmballage())
+				.montantPayer(bordereauLivraison.getMontantPayer())
+				.tauxTva(bordereauLivraison.getTauxTva())
+				.etatBordereau(bordereauLivraison.getEtatBordereau())
+				.montantTva(bordereauLivraison.getMontantTva())
+				.tauxBic(bordereauLivraison.getTauxBic())
+				.montantBic(bordereauLivraison.getMontantBic())
+				.montantTtc(bordereauLivraison.getMontantTtc())
+				.clientId(bordereauLivraison.getClient() != null ? bordereauLivraison.getClient().getId() : null)
+				.magasinId(bordereauLivraison.getMagasin() != null ? bordereauLivraison.getMagasin().getId() : null)
 				.build();
 	}
 
@@ -79,20 +76,18 @@ public class BordereauLivraisonDTO extends AbstractAuditingEntity implements Ser
 				.id(dto.getId())
 				.numBordereau(dto.getNumBordereau())
 				.dateBordereau(dto.getDateBordereau())
-				.totalBordereau(dto.getTotalBordereau())
-				.totalGeneral(dto.getTotalGeneral())
-				.totalRemise(dto.getTotalRemise())
-				.netApayer(dto.getNetApayer())
-				.totalTransport(dto.getTotalTransport())
-				.totalEmballage(dto.getTotalEmballage())
-				.montantPayer(dto.getMontantPayer())
-				.tauxTva(dto.getTauxTva())
+				.netApayer(dto.getNetApayer() !=null ? dto.getNetApayer(): BigDecimal.ZERO)
+				.totalTransport(dto.getTotalTransport() !=null ? dto.getTotalTransport(): BigDecimal.ZERO)
+				.totalEmballage(dto.getTotalEmballage() !=null ? dto.getTotalEmballage(): BigDecimal.ZERO)
+				.montantPayer(dto.getMontantPayer() !=null ? dto.getMontantPayer(): BigDecimal.ZERO)
+				.tauxTva(dto.getTauxTva() !=null ? dto.getTauxTva(): BigDecimal.ZERO)
 				.etatBordereau(dto.getEtatBordereau())
-				.montantTva(dto.getMontantTva())
-				.tauxBic(dto.getTauxBic())
-				.montantBic(dto.getMontantBic())
-				.montantTtc(dto.getMontantTtc())
+				.montantTva(dto.getMontantTva() !=null ? dto.getMontantTva(): BigDecimal.ZERO)
+				.tauxBic(dto.getTauxBic() !=null ? dto.getTauxBic(): BigDecimal.ZERO)
+				.montantBic(dto.getMontantBic() !=null ? dto.getMontantBic(): BigDecimal.ZERO)
+				.montantTtc(dto.getMontantTtc() !=null ? dto.getMontantTtc(): BigDecimal.ZERO)
 				// Les relations doivent être gérées séparément
 				.build();
+
 	}
 }

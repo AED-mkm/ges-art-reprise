@@ -1,8 +1,10 @@
 package com.gest.art.parametre.entite;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.gest.art.security.auditing.AbstractAuditingEntity;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -12,6 +14,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -30,7 +33,10 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -63,52 +69,57 @@ public class BordereauLivraison extends AbstractAuditingEntity implements Serial
     @Column(name = "date_bord")
     private LocalDate dateBordereau;
 
-    @Column(name = "total_bord")
-    private double totalBordereau;
+/*    @Column(name = "total_bord")
+    private BigDecimal totalBordereau;*/
 
-    @Column(name = "total_general")
-    private double totalGeneral;
+   /* @Column(name = "total_general")
+    private BigDecimal totalGeneral;*/
 
-    @Column(name = "total_remise")
-    private double totalRemise;
+    /*@Column(name = "total_remise")
+    private BigDecimal totalRemise;*/
 
     @Column(name = "net_a_payer")
-    private double netApayer;
+    private BigDecimal netApayer;
 
     @Column(name = "total_transport")
-    private double totalTransport;
+    private BigDecimal totalTransport;
 
     @Column(name = "total_emballage")
-    private double totalEmballage;
+    private BigDecimal totalEmballage;
 
     @Column(name = "montant_payer")
-    private double montantPayer;
+    private BigDecimal montantPayer;
 
     @Column(name = "taux_tva")
-    private double tauxTva;
+    private BigDecimal tauxTva;
 
     @Column(name = "etat_bord")
     private String etatBordereau;
 
     @Column(name = "montant_tva")
-    private double montantTva;
+    private BigDecimal montantTva;
 
     @Column(name = "taux_bic")
-    private int tauxBic;
+    private BigDecimal tauxBic;
 
     @Column(name = "montant_bic")
-    private double montantBic;
+    private BigDecimal montantBic;
 
     @Column(name = "montant_ttc")
-    private double montantTtc;
+    private BigDecimal montantTtc;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "client_id", referencedColumnName = "id")
     @JsonIgnoreProperties(value = "bord_liv", allowSetters = true)
     private Client client;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "mag_id", referencedColumnName = "id")
     @JsonIgnoreProperties(value = "bord_liv", allowSetters = true)
     private Magasin magasin;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "taxe", referencedColumnName = "id")
+    @JsonIgnoreProperties(value = "vente", allowSetters = true)
+    private Taxe taxe;
+
 }

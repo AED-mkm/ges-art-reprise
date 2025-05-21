@@ -118,14 +118,6 @@ public class VenteService {
                 ligneDTO.setPrixTotal(prixTotal);
                 produitRepository.save(produit);
 
-               /* LigneDeVente ligne = ligneDeVenteMapper.toEntity(ligneDTO);
-                ligne.setQteVente(ligneDTO.getQteVente());
-                ligne.setPrixUnitaire(ligneDTO.getPrixUnitaire());
-                ligneDTO.setPrixTotal(ligneDTO.getPrixUnitaire().multiply(ligneDTO.getQteVente()));
-                ligne.setVente(vente);
-                ligneDTO.setVenteId(ligneDTO.getVenteId());
-                prixTotalVente = prixTotalVente.add(prixTotal);*/
-
                 // Création de la ligne
                 LigneDeVente ligne = new LigneDeVente();
                 ligne.setProduit(produit);

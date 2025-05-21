@@ -1,9 +1,11 @@
 package com.gest.art.parametre.service;
 
 
+import com.gest.art.parametre.entite.BordereauLivraison;
 import com.gest.art.parametre.entite.Produit;
 import com.gest.art.parametre.entite.Taxe;
 import com.gest.art.parametre.entite.Vente;
+import com.gest.art.parametre.entite.dto.BordereauLivraisonDTO;
 import com.gest.art.parametre.entite.dto.VenteDTO;
 import com.gest.art.parametre.entite.historique.HistoriquePrix;
 import com.gest.art.parametre.repository.HistoriquePrixRepository;
@@ -118,6 +120,68 @@ public class StockService {
 		} else {
 			log.info("Aucune taxe sélectionnée, le prix TTC reste inchangé");
 			vente.setMontantTTC(prixTotalVente);
+		}
+	}
+
+
+	public void appliquerTaxesSurBordereau(BordereauLivraisonDTO dto, BordereauLivraison bord, BigDecimal prixTotalBord) {
+		// Validation des paramètres
+		if (dto == null || bord == null || prixTotalBord == null) {
+			throw new IllegalArgumentException("Les paramètres ne peuvent pas être null");
+		}
+
+		if (prixTotalBord.compareTo(BigDecimal.ZERO) < 0) {
+			throw new IllegalArgumentException("Le prix total ne peut pas être négatif");
+		}
+
+		final BigDecimal cent = new BigDecimal("100");
+		BigDecimal montantTva = BigDecimal.ZERO;
+		BigDecimal montantBic = BigDecimal.ZERO;
+		BigDecimal prixTotalTTC = prixTotalBord;
+
+		// Applique les taxes seulement si des taxes sont cochées
+		if (dto.getTaxesCochees() != null && !dto.getTaxesCochees().isEmpty()) {
+			List<Taxe> taxesApplicables = taxeRepository.findByCodeIn(dto.getTaxesCochees());
+
+			// Pour suivre les taxes appliquées (pour audit)
+			List<String> taxesAppliquees = new ArrayList<>();
+			for (Taxe taxe : taxesApplicables) {
+				BigDecimal taux = taxe.getTaxe().divide(cent, 4, RoundingMode.HALF_UP);
+				String codeTaxe = taxe.getCode().toUpperCase();
+
+				switch(codeTaxe) {
+					case "01": // TVA
+						montantTva = prixTotalBord.multiply(taux)
+								.setScale(2, RoundingMode.HALF_UP);
+						prixTotalTTC = prixTotalTTC.add(montantTva);
+						taxesAppliquees.add("TVA (" + taxe.getTaxe() + "%)");
+						bord.setTauxTva(taxe.getTaxe());
+						break;
+
+					case "02": // BIC
+						montantBic = prixTotalBord.multiply(taux)
+								.setScale(2, RoundingMode.HALF_UP);
+						prixTotalTTC = prixTotalTTC.add(montantBic);
+						taxesAppliquees.add("BIC (" + taxe.getTaxe() + "%)");
+						 bord.setTauxBic(taxe.getTaxe());
+						log.info( "TTTTTTTTTTT:"+ bord.getTauxBic());
+						break;
+
+					default:
+						log.warn("Taxe non gérée avec le code: {}", codeTaxe);
+				}
+
+			}
+
+			bord.setMontantTva(montantTva);
+			bord.setMontantBic(montantBic);
+			bord.setMontantTtc(prixTotalTTC);
+			//vente.setTaxesAppliquees(String.join(", ", taxesAppliquees));
+			log.info("Taxes appliquées: {}. Montant TVA: {}, BIC: {}, Total TTC: {}",
+					taxesAppliquees, montantTva, montantBic, prixTotalTTC);
+		} else {
+			log.info("Aucune taxe sélectionnée, le prix TTC reste inchangé");
+			bord.setMontantTtc(prixTotalBord);
 		}
 	}
 

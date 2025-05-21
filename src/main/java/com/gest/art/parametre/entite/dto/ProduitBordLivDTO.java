@@ -8,6 +8,7 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 @Builder
 @Getter
@@ -18,9 +19,14 @@ public class ProduitBordLivDTO extends AbstractAuditingEntity implements Seriali
 	private static final long serialVersionUID = 1L;
 
 	private String id;
-	private int qteBordLiv;
-	private double prixBordLiv;
-	private double prixAchatBordLiv;
+	private BigDecimal qteBordLiv;
+	private BigDecimal prixBordLiv;
+	private BigDecimal prixAchatBordLiv;
+	//reference avec produit
+	private String produitId;
+	private Integer codeprod;
+	private String libelle;
+	private BigDecimal stockProduit;
 
 	// Références aux IDs des entités liées
 	private String bordereauLivraisonId;
@@ -40,6 +46,9 @@ public class ProduitBordLivDTO extends AbstractAuditingEntity implements Seriali
 						produitBordLiv.getBordereauLivraison().getId() : null)
 				.magasinId(produitBordLiv.getMagasin() != null ?
 						produitBordLiv.getMagasin().getId() : null)
+				.codeprod(produitBordLiv.getProduit().getCodeprod())
+				.libelle(produitBordLiv.getProduit().getLibelle())
+				.stockProduit(produitBordLiv.getProduit().getStockProduit())
 				/*.createdBy(produitBordLiv.getCreatedBy())
 				.lastModifiedBy(produitBordLiv.getLastModifiedBy())
 				.createdDate(produitBordLiv.getCreatedDate())

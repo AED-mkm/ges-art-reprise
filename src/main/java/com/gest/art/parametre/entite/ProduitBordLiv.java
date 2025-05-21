@@ -27,6 +27,7 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 
 /**
@@ -56,18 +57,24 @@ public class ProduitBordLiv extends AbstractAuditingEntity implements Serializab
     @Column(name = "id", updatable = false, nullable = false)
     private String id;
     @Column(name = "qte_bord_liv")
-    private int qteBordLiv;
+    private BigDecimal qteBordLiv;
     @Column(name = "prix_bord_liv")
-    private double prixBordLiv;
+    private BigDecimal prixBordLiv;
     @Column(name = "prix_achat_bord")
-    private double prixAchatBordLiv;
+    private BigDecimal prixAchatBordLiv;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "bord_liv_id", referencedColumnName = "id")
     @JsonIgnoreProperties(value = "prod_bord_liv", allowSetters = true)
     private BordereauLivraison bordereauLivraison;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "mag_id", referencedColumnName = "id")
     @JsonIgnoreProperties(value = "prod_bord_liv", allowSetters = true)
     private Magasin magasin;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "produit", referencedColumnName = "id")
+    @JsonIgnoreProperties(value = "produit", allowSetters = true)
+    private Produit produit;
 
 }
