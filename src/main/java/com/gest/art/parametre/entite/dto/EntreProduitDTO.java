@@ -26,7 +26,7 @@ public class EntreProduitDTO extends AbstractAuditingEntity implements Serializa
 	private BigDecimal prixEntre;
 
 	// Références aux IDs des entités liées
-	private String entreId;
+	//private String entreId;
 	@NotBlank
 	private String produitId;
 
@@ -42,7 +42,7 @@ public class EntreProduitDTO extends AbstractAuditingEntity implements Serializa
 		entreProdDTO.setQuantite(entreProduit.getQuantite());
 		entreProdDTO.setPrixEntre(entreProduit.getPrixEntre());
 		entreProdDTO.setProduitId(entreProduit.getProduit().getId());
-		entreProdDTO.setEntreId(entreProduit.getEntre().getId());
+		//entreProdDTO.setEntreId(entreProduit.getEntre().getId());
 		return entreProdDTO;
 	}
 

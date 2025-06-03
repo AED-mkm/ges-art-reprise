@@ -26,10 +26,13 @@ public class EntreDTO extends AbstractAuditingEntity implements Serializable {
 	private String numBordLiv;
 
 	// Références aux IDs des entités liées
-	//private String fournisseurId;
-	private FournisseurDTO fournisseurDTO;
-	//private String magasinId;
-	private MagasinDTO magasinDTO;
+	private String fournisseurId;
+	private String nomFour;
+
+	//private FournisseurDTO fournisseurDTO;
+	private String magasinId;
+	private String nomMagasin;
+	//private MagasinDTO magasinDTO;
 	private List<EntreProduitDTO> entreProduits ;
 
 	public static EntreDTO fromEntity(Entre entre) {
@@ -42,8 +45,10 @@ public class EntreDTO extends AbstractAuditingEntity implements Serializable {
 	entreDTO.setObjet(entre.getObjet());
 	entreDTO.setDateEnt(entre.getDateEnt());
 	entreDTO.setNumBordLiv(entre.getNumBordLiv());
-	entreDTO.setFournisseurDTO(FournisseurDTO.fromEntity(entre.getFournisseur()));
-	entreDTO.setMagasinDTO(MagasinDTO.fromEntity(entre.getMagasin()));
+	entreDTO.setFournisseurId(entre.getFournisseur().getId());
+	entreDTO.setNomFour(entre.getFournisseur().getNomFour());
+	entreDTO.setMagasinId(entre.getMagasin().getId());
+	entreDTO.setNomMagasin(entre.getMagasin().getNomMagasin());
 	return entreDTO;
 	}
 
@@ -54,8 +59,8 @@ public class EntreDTO extends AbstractAuditingEntity implements Serializable {
 				.dateEnt(dto.getDateEnt())
 				.objet(dto.getObjet())
 				.numBordLiv(dto.getNumBordLiv())
-				.fournisseur(FournisseurDTO.toEntity(dto.getFournisseurDTO()))
-				.magasin(MagasinDTO.toEntity(dto.getMagasinDTO()))
+			/*	.fournisseur(FournisseurDTO.toEntity(dto.getFournisseurDTO()))
+				.magasin(MagasinDTO.toEntity(dto.getMagasinDTO()))*/
 				// Les relations doivent être gérées séparément
 				.build();
 	}

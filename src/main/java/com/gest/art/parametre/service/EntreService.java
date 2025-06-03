@@ -79,22 +79,24 @@ public class EntreService {
 
             // ===== 2. CHARGEMENT DES ENTITÉS =====
             // Charge le magasin ou throw EntityNotFoundException
-            final Magasin magasin = magasinRepository.findById(entreDTO.getMagasinDTO().getId())
+            final Magasin magasin = magasinRepository.findById(entreDTO.getMagasinId())
                     .orElseThrow(() -> new EntityNotFoundException
-                            ("Magasin ID " + entreDTO.getMagasinDTO() + " non trouvé"));
+                            ("Magasin ID non trouvé"));
 
             // Charge le fournisseur ou throw EntityNotFoundException
-            final Fournisseur fournisseur = fournisseurRepository.findById(entreDTO.getFournisseurDTO().getId())
+            final Fournisseur fournisseur = fournisseurRepository.findById(entreDTO.getFournisseurId())
                     .orElseThrow(() -> new EntityNotFoundException
-                            ("Fournisseur ID " + entreDTO.getFournisseurDTO() + " non trouvé"));
+                            ("Fournisseur ID  non trouvé"));
 
             // ===== 3. CRÉATION DE L'ENTRÉE =====
             Entre entre = EntreDTO.toEntity(entreDTO);
             entre.setMagasin(magasin);
+            entreDTO.setNomMagasin(magasin.getNomMagasin());
             entre.setFournisseur(fournisseur);
-            entre.setObjet(entreDTO.getObjet());
-            entre.setNumBordLiv(entreDTO.getNumBordLiv());
-            entre.setDateEnt(LocalDate.now()); // Date système
+            entreDTO.setNomFour(fournisseur.getNomFour());
+            entreDTO.setObjet(entreDTO.getObjet());
+            entreDTO.setNumBordLiv(entreDTO.getNumBordLiv());
+            entreDTO.setDateEnt(LocalDate.now()); // Date système
 
             // ===== 4. GESTION DES PRODUITS =====
             // Processus métier pour les produits
