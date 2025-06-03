@@ -32,7 +32,7 @@ import java.util.Objects;
 @RequestMapping("/api/v1")
 @CrossOrigin(origins = "*")
 public class TypeClientResource {
-    private static final String ENTITY_NAME = "Fournisseur";
+    private static final String ENTITY_NAME = "TypeClient";
     private final Logger log = LoggerFactory.getLogger(TypeClientResource.class);
     private final TypeClientService typeClientService;
 
@@ -60,7 +60,7 @@ public class TypeClientResource {
         }
         TypeClientDTO result = typeClientService.save(typeClientDTO);
         return ResponseEntity
-                .created(new URI("/api/Fournisseurs/" + result.getId()))
+                .created(new URI("/api/typeclients/" + result.getId()))
                 .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId()))
                 .body(result);
     }

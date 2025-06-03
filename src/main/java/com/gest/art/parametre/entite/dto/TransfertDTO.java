@@ -72,7 +72,6 @@ public class TransfertDTO extends AbstractAuditingEntity implements Serializable
 		if (dto == null) {
 			return null;
 		}
-
 		return Transfert.builder()
 				.id(dto.getId())
 				.dateTransfert(dto.getDateTransfert())

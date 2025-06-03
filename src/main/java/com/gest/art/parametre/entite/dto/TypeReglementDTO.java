@@ -38,23 +38,16 @@ public class TypeReglementDTO extends AbstractAuditingEntity implements Serializ
 			return null;
 		}
 
-		return TypeReglementDTO.builder()
-				.id(typeReglement.getId())
-				.code(typeReglement.getCode())
-				.typeRegl(typeReglement.getTypeRegl())
-				/*.createdBy(typeReglement.getCreatedBy())
-				.lastModifiedBy(typeReglement.getLastModifiedBy())
-				.createdDate(typeReglement.getCreatedDate())
-				.lastModifiedDate(typeReglement.getLastModifiedDate())*/
-				.build();
+		TypeReglementDTO typeReglementDTO = new TypeReglementDTO();
+		typeReglementDTO.setId(typeReglement.getId());
+		typeReglementDTO.setCode(typeReglement.getCode());
+		typeReglementDTO.setTypeRegl(typeReglement.getTypeRegl());
+
+		return typeReglementDTO;
 	}
 
 	// Mapping from DTO to Entity
 	public static TypeReglement toEntity(TypeReglementDTO dto) {
-		if (dto == null) {
-			return null;
-		}
-
 		return TypeReglement.builder()
 				.id(dto.getId())
 				.code(dto.getCode())

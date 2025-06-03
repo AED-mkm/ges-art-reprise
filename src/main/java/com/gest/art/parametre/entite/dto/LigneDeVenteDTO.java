@@ -40,21 +40,16 @@ public class LigneDeVenteDTO  extends AbstractAuditingEntity implements Serializ
 		if (ligneDeVente == null) {
 			return null;
 		}
-
-		return LigneDeVenteDTO.builder()
-				.id(ligneDeVente.getId())
-				.qteVente(ligneDeVente.getQteVente())
-				.prixUnitaire(ligneDeVente.getPrixUnitaire())
-				.prixTotal(ligneDeVente.getPrixTotal())
-				.venteId(ligneDeVente.getVente() != null ? ligneDeVente.getVente().getId() : null)
-				.build();
+	LigneDeVenteDTO ligneDTO = new LigneDeVenteDTO();
+	ligneDTO.setId(ligneDeVente.getId());
+	ligneDTO.setQteVente(ligneDeVente.getQteVente());
+	ligneDTO.setPrixUnitaire(ligneDeVente.getPrixUnitaire());
+	ligneDTO.setPrixTotal(ligneDeVente.getPrixTotal());
+	ligneDTO.setProduitId(ligneDeVente.getProduit().getId());
+	return ligneDTO;
 	}
 
 	public static LigneDeVente toEntity(LigneDeVenteDTO dto) {
-		if (dto == null) {
-			return null;
-		}
-
 		return LigneDeVente.builder()
 				.id(dto.getId())
 				.qteVente(dto.getQteVente())

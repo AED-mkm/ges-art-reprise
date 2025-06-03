@@ -94,4 +94,9 @@ public class Vente extends AbstractAuditingEntity implements Serializable {
     @Column(name = "montant_ttc")
     private BigDecimal montantTTC = BigDecimal.ZERO;
     private String factureId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "facture", referencedColumnName = "id")
+    @JsonIgnoreProperties(value = "vente", allowSetters = true)
+    private Facture facture;
+
 }

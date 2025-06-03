@@ -26,43 +26,36 @@ public class EntreDTO extends AbstractAuditingEntity implements Serializable {
 	private String numBordLiv;
 
 	// Références aux IDs des entités liées
-	private String fournisseurId;
-	private String magasinId;
-	private List<EntreProduitDTO> entreProduits = new ArrayList<>();
+	//private String fournisseurId;
+	private FournisseurDTO fournisseurDTO;
+	//private String magasinId;
+	private MagasinDTO magasinDTO;
+	private List<EntreProduitDTO> entreProduits ;
 
 	public static EntreDTO fromEntity(Entre entre) {
 		if (entre == null) {
 			return null;
 		}
 
-		return EntreDTO.builder()
-				.id(entre.getId())
-				.dateEnt(entre.getDateEnt())
-				.objet(entre.getObjet())
-				.numBordLiv(entre.getNumBordLiv())
-				.fournisseurId(entre.getFournisseur() != null ? entre.getFournisseur().getId() : null)
-				.magasinId(entre.getMagasin() != null ? entre.getMagasin().getId() : null)
-				.entreProduits(entre.getEntreProduits() != null ?
-						entre.getEntreProduits().stream()
-								.map(ep -> EntreProduitDTO.fromEntity(ep)) // Mapping de EntreProduit vers EntreProduitDTO
-								.collect(Collectors.toList()) : null)
-				/*.createdBy(entre.getCreatedBy())
-				.lastModifiedBy(entre.getLastModifiedBy())
-				.createdDate(entre.getCreatedDate())
-				.lastModifiedDate(entre.getLastModifiedDate())*/
-				.build();
+	EntreDTO entreDTO = new EntreDTO();
+	entreDTO.setId( entre.getId());
+	entreDTO.setObjet(entre.getObjet());
+	entreDTO.setDateEnt(entre.getDateEnt());
+	entreDTO.setNumBordLiv(entre.getNumBordLiv());
+	entreDTO.setFournisseurDTO(FournisseurDTO.fromEntity(entre.getFournisseur()));
+	entreDTO.setMagasinDTO(MagasinDTO.fromEntity(entre.getMagasin()));
+	return entreDTO;
 	}
 
 
 	public static Entre toEntity(EntreDTO dto) {
-		if (dto == null) {
-			return null;
-		}
 		return Entre.builder()
 				.id(dto.getId())
 				.dateEnt(dto.getDateEnt())
 				.objet(dto.getObjet())
 				.numBordLiv(dto.getNumBordLiv())
+				.fournisseur(FournisseurDTO.toEntity(dto.getFournisseurDTO()))
+				.magasin(MagasinDTO.toEntity(dto.getMagasinDTO()))
 				// Les relations doivent être gérées séparément
 				.build();
 	}

@@ -3,6 +3,7 @@ package com.gest.art.parametre.service;
 
 import com.gest.art.parametre.entite.BordereauLivraison;
 import com.gest.art.parametre.entite.Produit;
+import com.gest.art.parametre.entite.StockProduit;
 import com.gest.art.parametre.entite.Taxe;
 import com.gest.art.parametre.entite.Vente;
 import com.gest.art.parametre.entite.dto.BordereauLivraisonDTO;
@@ -10,6 +11,7 @@ import com.gest.art.parametre.entite.dto.VenteDTO;
 import com.gest.art.parametre.entite.historique.HistoriquePrix;
 import com.gest.art.parametre.repository.HistoriquePrixRepository;
 import com.gest.art.parametre.repository.ProduitRepository;
+import com.gest.art.parametre.repository.StockProduitRepository;
 import com.gest.art.parametre.repository.TaxeRepository;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -28,12 +30,15 @@ public class StockService {
 	private final ProduitRepository produitRepository;
 	private final HistoriquePrixRepository historiquePrixRepo;
 
+	private final StockProduitRepository stockProduitRepository;
+
 	private final  TaxeRepository taxeRepository ;
 
 	public StockService(ProduitRepository produitRepository, HistoriquePrixRepository historiquePrixRepo,
-	                    TaxeRepository taxeRepository) {
+	                    StockProduitRepository stockProduitRepository, TaxeRepository taxeRepository) {
 		this.produitRepository = produitRepository;
 		this.historiquePrixRepo = historiquePrixRepo;
+		this.stockProduitRepository = stockProduitRepository;
 		this.taxeRepository = taxeRepository;
 	}
 
@@ -44,10 +49,9 @@ public class StockService {
 	 * @param nouveauPrix
 	 */
 
+/*
 	public void mettreAJourStockEtPrix(Produit produit, BigDecimal quantite, BigDecimal nouveauPrix) {
 		produit.setStockProduit(produit.getStockProduit().add(quantite));
-		produit.setAncienPrix(produit.getPrixActuel());
-		produit.setPrixActuel(nouveauPrix);
 		HistoriquePrix historique = HistoriquePrix.builder()
 				.produit(produit)
 				.ancienPrix(produit.getAncienPrix())
@@ -57,6 +61,7 @@ public class StockService {
 		historiquePrixRepo.save(historique);
 		produitRepository.save(produit);
 	}
+*/
 
 	/**
 	 * Applique les taxes sélectionnées à une vente et met à jour le prix total

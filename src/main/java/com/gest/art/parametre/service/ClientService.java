@@ -1,10 +1,11 @@
 package com.gest.art.parametre.service;
 
-import com.gest.art.parametre.entite.Banque;
 import com.gest.art.parametre.entite.Client;
+import com.gest.art.parametre.entite.TypeClient;
+import com.gest.art.parametre.entite.dto.BanqueDTO;
 import com.gest.art.parametre.entite.dto.ClientDTO;
-import com.gest.art.parametre.entite.dto.TypeClientDTO;
 import com.gest.art.parametre.repository.ClientRepository;
+import com.gest.art.parametre.repository.TypeClientRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
@@ -25,8 +26,11 @@ public class ClientService {
     private final Logger log = LoggerFactory.getLogger(ClientService.class);
     private final ClientRepository clientRepository;
 
-    public ClientService(ClientRepository clientRepository) {
+    private final TypeClientRepository typeClientRepository;
+
+    public ClientService(ClientRepository clientRepository, TypeClientRepository typeClientRepository) {
         this.clientRepository = clientRepository;
+        this.typeClientRepository = typeClientRepository;
     }
 
 
@@ -37,10 +41,14 @@ public class ClientService {
      * @return the Fournisseur dto
      */
     public ClientDTO save(final ClientDTO clientDTO) {
-        log.debug("Request to save Fournisseur : {}", clientDTO);
-        return ClientDTO.fromEntity(
-                clientRepository.save(
-                        ClientDTO.toEntity(clientDTO)));
+        log.debug("Request to save Client : {}", clientDTO);
+        Client client = ClientDTO.toEntity(clientDTO);
+        TypeClient typeClient = typeClientRepository.findById(clientDTO.getTypeClientDTO().getId())
+                .orElseThrow(() -> new RuntimeException("TypeClient introuvable"));
+
+        client.setTypeClient(typeClient);
+        Client savedClient = clientRepository.save(client);
+        return ClientDTO.fromEntity(savedClient);
     }
 
     /**

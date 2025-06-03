@@ -102,12 +102,12 @@ public class ReportConfigService {
     private InputStream convertDtoToInputStream(final Object dto) throws IOException {
         ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule()).findAndRegisterModules();
         ;
-        // Java object to JSON string
+        //Java object to JSON string
         String jsonString = mapper.writeValueAsString(dto);
-       // System.out.println("\n Json String:  \n" + jsonString);
-        // if (profiles == "dev") {
+        System.out.println("\n Json String:  \n" + jsonString);
+        /* if (profiles == "dev") {
         createJsonFile(jsonString);
-        // }
+         }*/
         InputStream inputStream = new ByteArrayInputStream(jsonString.getBytes(StandardCharsets.UTF_8));
         return inputStream;
     }

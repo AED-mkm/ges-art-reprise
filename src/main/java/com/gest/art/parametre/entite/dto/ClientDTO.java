@@ -22,43 +22,31 @@ public class ClientDTO extends AbstractAuditingEntity implements Serializable{
 
 	private String id;
 	private String codeClient;
-
 	@NotBlank(message = "le nom du client est obligatoire")
 	private String denomination;
-
 	private String contactClient;
 	private String adresseClient;
 
 	// Références aux IDs des entités liées
-	private String typeClientId;
-	private String magasinId;
+	private TypeClientDTO typeClientDTO;
+	/*private String magasinId;
 	private List<String> ventesIds;
-	private List<String> facturesIds;
+	private List<String> facturesIds;*/
 
 	public static ClientDTO fromEntity(Client client) {
 		if (client == null) {
 			return null;
 		}
 
-		return ClientDTO.builder()
-				.id(client.getId())
-				.codeClient(client.getCodeClient())
-				.denomination(client.getDenomination())
-				.contactClient(client.getContactClient())
-				.adresseClient(client.getAdresseClient())
-				.typeClientId(client.getTypeClient() != null ? client.getTypeClient().getId() : null)
-				.magasinId(client.getMagasin() != null ? client.getMagasin().getId() : null)
-				.ventesIds(client.getVentes() != null ?
-						client.getVentes().stream()
-								.map(vente -> vente.getId())
-								.collect(Collectors.toList()) : null)
-				.facturesIds(client.getFactures() != null ?
-						client.getFactures().stream()
-								.map(facture -> facture.getId())
-								.collect(Collectors.toList()) : null)
-				.build();
+		ClientDTO clientDTO = new ClientDTO();
+		clientDTO.setId( client.getId() );
+		clientDTO.setCodeClient(client.getCodeClient());
+		clientDTO.setDenomination(client.getDenomination());
+		clientDTO.setContactClient(client.getContactClient());
+		clientDTO.setAdresseClient(client.getAdresseClient());
+		clientDTO.setTypeClientDTO(TypeClientDTO.fromEntity(client.getTypeClient()));
+		return clientDTO ;
 	}
-
 	public static Client toEntity(ClientDTO dto) {
 		if (dto == null) {
 			return null;
@@ -69,6 +57,7 @@ public class ClientDTO extends AbstractAuditingEntity implements Serializable{
 				.denomination(dto.getDenomination())
 				.contactClient(dto.getContactClient())
 				.adresseClient(dto.getAdresseClient())
+				.typeClient(TypeClientDTO.toEntity(dto.getTypeClientDTO()))
 				// Les relations doivent être gérées séparément
 				.build();
 	}

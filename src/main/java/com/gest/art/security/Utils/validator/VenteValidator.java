@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 
 public class VenteValidator {
 	public static void validate(VenteDTO dto) {
-		if(dto.getLignesDeVenteIds() ==null || dto.getLignesDeVenteIds().isEmpty())
+		if(dto.getLignesDeVente() ==null || dto.getLignesDeVente().isEmpty())
 		{
 			throw new ValidationException("Lq liste des lignes de vente ne doit pas etre vide!");
 		}

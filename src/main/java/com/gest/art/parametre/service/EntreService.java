@@ -1,18 +1,21 @@
 package com.gest.art.parametre.service;
 
-import com.gest.art.parametre.entite.Banque;
 import com.gest.art.parametre.entite.Entre;
 import com.gest.art.parametre.entite.EntreProduit;
 import com.gest.art.parametre.entite.Fournisseur;
 import com.gest.art.parametre.entite.Magasin;
 import com.gest.art.parametre.entite.Produit;
+import com.gest.art.parametre.entite.StockProduit;
 import com.gest.art.parametre.entite.dto.EntreDTO;
 import com.gest.art.parametre.entite.dto.EntreProduitDTO;
+import com.gest.art.parametre.entite.dto.MagasinDTO;
 import com.gest.art.parametre.entite.mapper.EntreMapper;
+import com.gest.art.parametre.repository.EntreProduitRepository;
 import com.gest.art.parametre.repository.EntreRepository;
 import com.gest.art.parametre.repository.FournisseurRepository;
 import com.gest.art.parametre.repository.MagasinRepository;
 import com.gest.art.parametre.repository.ProduitRepository;
+import com.gest.art.parametre.repository.StockProduitRepository;
 import com.gest.art.security.Utils.validator.EntreValidator;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -43,6 +46,10 @@ public class EntreService {
     private final ProduitRepository produitRepository;
     private final MagasinRepository magasinRepository;
     private final FournisseurRepository fournisseurRepository;
+
+    private final EntreProduitRepository entreProduitRepository;
+
+    private final StockProduitRepository stockProduitRepository;
     private final StockService stockService;
     private final EntreRepository entreRepository;
     @Autowired
@@ -50,12 +57,14 @@ public class EntreService {
 
 
     public EntreService(ProduitRepository produitRepository, MagasinRepository magasinRepository,
-                        FournisseurRepository fournisseurRepository, StockService stockService, EntreRepository entreRepository)
+                        FournisseurRepository fournisseurRepository, EntreProduitRepository entreProduitRepository, StockProduitRepository stockProduitRepository, StockService stockService, EntreRepository entreRepository)
             throws ServiceException {
         this.produitRepository = produitRepository;
 
         this.magasinRepository = magasinRepository;
         this.fournisseurRepository = fournisseurRepository;
+        this.entreProduitRepository = entreProduitRepository;
+        this.stockProduitRepository = stockProduitRepository;
         this.stockService = stockService;
         this.entreRepository = entreRepository;
 
@@ -70,17 +79,17 @@ public class EntreService {
 
             // ===== 2. CHARGEMENT DES ENTITÉS =====
             // Charge le magasin ou throw EntityNotFoundException
-            final Magasin magasin = magasinRepository.findById(entreDTO.getMagasinId())
+            final Magasin magasin = magasinRepository.findById(entreDTO.getMagasinDTO().getId())
                     .orElseThrow(() -> new EntityNotFoundException
-                            ("Magasin ID " + entreDTO.getMagasinId() + " non trouvé"));
+                            ("Magasin ID " + entreDTO.getMagasinDTO() + " non trouvé"));
 
             // Charge le fournisseur ou throw EntityNotFoundException
-            final Fournisseur fournisseur = fournisseurRepository.findById(entreDTO.getFournisseurId())
+            final Fournisseur fournisseur = fournisseurRepository.findById(entreDTO.getFournisseurDTO().getId())
                     .orElseThrow(() -> new EntityNotFoundException
-                            ("Fournisseur ID " + entreDTO.getFournisseurId() + " non trouvé"));
+                            ("Fournisseur ID " + entreDTO.getFournisseurDTO() + " non trouvé"));
 
             // ===== 3. CRÉATION DE L'ENTRÉE =====
-            Entre entre = new Entre();
+            Entre entre = EntreDTO.toEntity(entreDTO);
             entre.setMagasin(magasin);
             entre.setFournisseur(fournisseur);
             entre.setObjet(entreDTO.getObjet());
@@ -92,12 +101,17 @@ public class EntreService {
             List<EntreProduit> entreProduits = processProduits(entreDTO, entre);
             entre.setEntreProduits(entreProduits);
 
+
             // ===== 5. SAUVEGARDE =====
             // Sauvegarde en cascade (Entre + EntreProduit)
-            Entre savedEntre = entreRepository.save(entre);
+             Entre savedEntre = entreRepository.save(entre);
 
             // Conversion en DTO pour la réponse
-            return entreMapper.toDTO(savedEntre);
+             return entreDTO;
+
+          /*  return EntreDTO.fromEntity(
+                    entreRepository.save(
+                            EntreDTO.toEntity(entreDTO)));*/
 
         } catch (EntityNotFoundException | ValidationException e) {
             // On relance les exceptions métier telles quelles
@@ -142,11 +156,12 @@ public class EntreService {
                     ));
 
             // 3.2 Mise à jour du stock et du prix via le service dédié
-            stockService.mettreAJourStockEtPrix(
+          /*  stockService.mettreAJourStockEtPrix(
                     produit,
                     epDTO.getQuantite(),
                     epDTO.getPrixEntre()
-            );
+                    );
+*/
 
             // 3.3 Création de la liaison Entre-Produit
             EntreProduit entreProduit = EntreProduit.builder()
@@ -155,9 +170,24 @@ public class EntreService {
                     .quantite(epDTO.getQuantite())
                     .prixEntre(epDTO.getPrixEntre())
                     .build();
-            // Validation des données avant retour
-            validateEntreProduit(entreProduit);
 
+            StockProduit stockProduit = stockProduitRepository.findByProduitId(produit.getId())
+                    .orElseGet(() -> {
+                        StockProduit sp = new StockProduit();
+                        sp.setProduit(produit);
+                        sp.setCoutAchat(BigDecimal.ZERO);
+                        sp.setStockProduit(BigDecimal.ZERO); // Initialisation
+                        return sp;
+                    });
+
+            // Mise à jour de la quantité
+            stockProduit.setStockProduit(stockProduit.getStockProduit().add(epDTO.getQuantite()));
+            stockProduit.setCoutAchat(epDTO.getPrixEntre());
+            stockProduit.setMagasin(entre.getMagasin());
+            stockProduitRepository.save(stockProduit);
+            //Validation des données avant retour
+            validateEntreProduit(entreProduit);
+            log.info( "MMMMMMMMMMM:"+entre.getMagasin());
             return entreProduit;
         }).toList();
     }

@@ -61,9 +61,9 @@ public class Produit extends AbstractAuditingEntity {
     @JsonIgnore
     @OneToMany(mappedBy = "produit")
     private List<ProdBonCmdeFour> prodBonCmdeFour;
-    @ManyToOne(fetch = FetchType.LAZY)
+   /* @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "mag_id", referencedColumnName = "id")
     @JsonIgnoreProperties(value = "produit", allowSetters = true)
-    private Magasin magasin;
+    private Magasin magasin;*/
 
 }

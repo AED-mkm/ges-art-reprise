@@ -31,7 +31,7 @@ import java.util.Objects;
 @RequestMapping("/api/v1")
 @CrossOrigin(origins = "*")
 public class BanqueResource {
-    private static final String ENTITY_NAME = "Fournisseur";
+    private static final String ENTITY_NAME = "Banque";
     private final Logger log = LoggerFactory.getLogger(BanqueResource.class);
     private final BanqueService banqueService;
 
@@ -46,20 +46,20 @@ public class BanqueResource {
     /**
      * {@code POST  /Fournisseurs} : Create a new Fournisseur.
      *
-     * @param BanqueDTO the FournisseurDTO to create.
+     * @param banqueDTO the FournisseurDTO to create.
      * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new FournisseurDTO,
      * or with status {@code 400 (Bad Request)} if the Fournisseur has already an ID.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/banques")
-    public ResponseEntity<BanqueDTO> createFournisseur(@RequestBody final BanqueDTO BanqueDTO) throws URISyntaxException {
-        log.debug("REST request to save Fournisseur : {}", BanqueDTO);
-        if (BanqueDTO.getId() != null) {
+    public ResponseEntity<BanqueDTO> createFournisseur(@RequestBody final BanqueDTO banqueDTO) throws URISyntaxException {
+        log.debug("REST request to save Fournisseur : {}", banqueDTO);
+        if (banqueDTO.getId() != null) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "A new Fournisseur cannot already have an ID");
         }
-        BanqueDTO result = banqueService.save(BanqueDTO);
+        BanqueDTO result = banqueService.save(banqueDTO);
         return ResponseEntity
-                .created(new URI("/api/Fournisseurs/" + result.getId()))
+                .created(new URI("/api/banques/" + result.getId()))
                 .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId()))
                 .body(result);
     }

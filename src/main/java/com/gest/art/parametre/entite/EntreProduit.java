@@ -49,6 +49,9 @@ public class EntreProduit extends AbstractAuditingEntity implements Serializable
 	@Column(name = "id", updatable = false, nullable = false)
 	private String id;
 
+	private BigDecimal quantite;  // Quantité du produit pour cette entrée spécifique
+	private BigDecimal prixEntre;
+
 	@ManyToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "entre")
 	private Entre entre;
@@ -56,9 +59,6 @@ public class EntreProduit extends AbstractAuditingEntity implements Serializable
 	@ManyToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "produit")
 	private Produit produit;
-
-	private BigDecimal quantite;  // Quantité du produit pour cette entrée spécifique
-	private BigDecimal prixEntre;
 
 
 }

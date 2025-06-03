@@ -33,40 +33,27 @@ public class ProduitDTO extends AbstractAuditingEntity implements Serializable {
     private String typeEmballage;
 
     // Références aux IDs des entités liées
-    private String magasinId;
-    private List<String> prodBonCmdeFourIds;
+    /* private String magasinId;
+    private List<String> prodBonCmdeFourIds;*/
 
     public static ProduitDTO fromEntity(Produit produit) {
         if (produit == null) {
             return null;
         }
 
-        return ProduitDTO.builder()
-                .id(produit.getId())
-                .codeprod(produit.getCodeprod())
-                .libelle(produit.getLibelle())
-                .prixActuel(produit.getPrixActuel())
-                .ancienPrix(produit.getAncienPrix())
-                .prixMax(produit.getPrixMax())
-                .stockProduit(produit.getStockProduit())
-                .nbElement(produit.getNbElement())
-                .coutAchat(produit.getCoutAchat())
-                .ancienCoutAchat(produit.getAncienCoutAchat())
-                .coutEmballage(produit.getCoutEmballage())
-                .typeEmballage(produit.getTypeEmballage())
-                .magasinId(produit.getMagasin() != null ? produit.getMagasin().getId() : null)
-                .prodBonCmdeFourIds(produit.getProdBonCmdeFour() != null ?
-                        produit.getProdBonCmdeFour().stream()
-                                .map(prod -> prod.getId())
-                                .collect(Collectors.toList()) : null)
-                .build();
+        ProduitDTO produitDTO = new ProduitDTO();
+        produitDTO.setId(produit.getId());
+        produitDTO.setCodeprod(produit.getCodeprod());
+        produitDTO.setLibelle(produit.getLibelle());
+        produitDTO.setPrixActuel(produit.getPrixActuel());
+        produitDTO.setAncienPrix(produit.getAncienPrix());
+        produitDTO.setPrixMax(produit.getPrixMax());
+        produitDTO.setCoutEmballage(produit.getCoutEmballage());
+        produitDTO.setTypeEmballage(produit.getTypeEmballage());
+        return produitDTO;
     }
 
     public static Produit toEntity(ProduitDTO dto) {
-        if (dto == null) {
-            return null;
-        }
-
         return Produit.builder()
                 .id(dto.getId())
                 .codeprod(dto.getCodeprod())

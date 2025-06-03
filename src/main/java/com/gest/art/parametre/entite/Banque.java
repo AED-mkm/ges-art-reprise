@@ -68,7 +68,7 @@ public class Banque extends AbstractAuditingEntity implements Serializable {
     @JsonIgnore
     @OneToMany(mappedBy = "banque")
     private List<Succursale> succursales;
-    @ManyToMany(fetch = FetchType.LAZY)
-    private List<Magasin> magasins;
+   /* @ManyToMany(fetch = FetchType.LAZY)
+    private List<Magasin> magasins;*/
 
 }

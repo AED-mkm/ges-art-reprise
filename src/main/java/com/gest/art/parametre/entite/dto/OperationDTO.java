@@ -29,7 +29,7 @@ public class OperationDTO extends AbstractAuditingEntity implements Serializable
 	private String observationOp;
 
 	// Références aux IDs des entités liées
-	private String succursaleId;
+	private SuccursaleDTO succursaleDTO;
 	private String magasinId;
 
 	public static OperationDTO fromEntity(Operation operation) {
@@ -37,16 +37,15 @@ public class OperationDTO extends AbstractAuditingEntity implements Serializable
 			return null;
 		}
 
-		return OperationDTO.builder()
-				.id(operation.getId())
-				.codeOp(operation.getCodeOp())
-				.dateOP(LocalDate.now())
-				.montantOp(operation.getMontantOp())
-				.sensOp(operation.getSensOp())
-				.observationOp(operation.getObservationOp())
-				.succursaleId(operation.getSuccursale() != null ? operation.getSuccursale().getId() : null)
-				.magasinId(operation.getMagasin() != null ? operation.getMagasin().getId() : null)
-				.build();
+		OperationDTO operationDTO = new OperationDTO();
+		operationDTO.setId(operation.getId());
+		operationDTO.setCodeOp(operation.getCodeOp());
+		operationDTO.setDateOP(operation.getDateOP());
+		operationDTO.setMontantOp(operation.getMontantOp());
+		operationDTO.setSensOp(operation.getSensOp());
+		operationDTO.setObservationOp(operation.getObservationOp());
+		operationDTO.setSuccursaleDTO(SuccursaleDTO.fromEntity(operation.getSuccursale()));
+		return operationDTO;
 	}
 
 	public static Operation toEntity(OperationDTO dto) {
@@ -61,7 +60,7 @@ public class OperationDTO extends AbstractAuditingEntity implements Serializable
 				.montantOp(dto.getMontantOp())
 				.sensOp(dto.getSensOp())
 				.observationOp(dto.getObservationOp())
-				.succursale(dto.getSuccursaleId()!=null ? Succursale.builder().id( dto.getSuccursaleId()).build():null)
+				.succursale(SuccursaleDTO.toEntity(dto.getSuccursaleDTO()))
 				// Les relations doivent être gérées séparément
 				.build();
 	}

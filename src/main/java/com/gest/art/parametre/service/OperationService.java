@@ -1,10 +1,8 @@
 package com.gest.art.parametre.service;
 
-import com.gest.art.parametre.entite.Magasin;
 import com.gest.art.parametre.entite.Operation;
 import com.gest.art.parametre.entite.Succursale;
 import com.gest.art.parametre.entite.dto.OperationDTO;
-import com.gest.art.parametre.repository.MagasinRepository;
 import com.gest.art.parametre.repository.OperationRepository;
 import com.gest.art.parametre.repository.SuccursaleRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -17,7 +15,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,12 +22,13 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 public class OperationService {
-    private final Logger log = LoggerFactory.getLogger( OperationService.class);
+    private final Logger log = LoggerFactory.getLogger(OperationService.class);
     private final OperationRepository operationRepository;
+    private final SuccursaleRepository succursaleRepository;
 
-    public OperationService(OperationRepository operationRepository) {
+    public OperationService(OperationRepository operationRepository, SuccursaleRepository succursaleRepository) {
         this.operationRepository = operationRepository;
-
+        this.succursaleRepository = succursaleRepository;
     }
 
 
@@ -41,10 +39,15 @@ public class OperationService {
      * @return the Fournisseur dto
      */
     public OperationDTO save(final OperationDTO operationDTO) {
-        log.debug("Request to save Fournisseur : {}", operationDTO);
-        return OperationDTO.fromEntity(
-                operationRepository.save(
-                        OperationDTO.toEntity(operationDTO)));
+        Operation operation = OperationDTO.toEntity(operationDTO);
+        Succursale succursale = succursaleRepository.findById(operationDTO.getSuccursaleDTO().getId())
+                .orElseThrow(()-> new RuntimeException("Succutsale introuvable!"));
+        operation.setSuccursale(succursale);
+        Operation saveOperation = operationRepository.save(operation);
+        return OperationDTO.fromEntity(saveOperation);
+
+
+
     }
 
     /**

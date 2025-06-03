@@ -3,6 +3,7 @@ package com.gest.art.parametre.resource;
 import com.gest.art.parametre.entite.Banque;
 import com.gest.art.parametre.entite.Vente;
 import com.gest.art.parametre.entite.dto.EntreDTO;
+import com.gest.art.parametre.entite.dto.ProduitDTO;
 import com.gest.art.parametre.entite.dto.VenteDTO;
 import com.gest.art.parametre.service.VenteService;
 import com.gest.art.security.config.HeaderUtil;
@@ -59,15 +60,15 @@ public class VenteResource {
 
     /**
      *  ajouter un produit à une vente
-     * @param venteId
+     * @param
      * @param produitId
      * @param quantite
      * @return
      */
 
-    @PostMapping("/ventes/{venteId}/ajouter-produit")
-    public ResponseEntity<VenteDTO> ajouterProduit( @PathVariable String venteId, @RequestParam String produitId,
-            @RequestParam BigDecimal quantite) {
+  /*  @PostMapping("/ventes/{venteId}/ajouter-produit")
+    public ResponseEntity<VenteDTO> ajouterProduit(@PathVariable ProduitDTO produitDTO, @RequestParam String produitId,
+                                                   @RequestParam BigDecimal quantite) {
 
         VenteDTO venteDTO = venteService.getVenteById(venteId);
         venteService.ajouterProduitAVente(venteDTO, produitId, quantite);
@@ -76,12 +77,12 @@ public class VenteResource {
         return ResponseEntity.ok(updatedVente);
     }
 
-    /**
+    *//**
      * retirer un produit d'une vente
-     * @param venteId
-     * @param produitId
+     * @param
+     * @param
      * @return
-     */
+     *//*
 
     @PostMapping("/ventes/{venteId}/retirer-produit")
     public ResponseEntity<VenteDTO> retirerProduit( @PathVariable String venteId,  @RequestParam String produitId)
@@ -92,11 +93,17 @@ public class VenteResource {
         VenteDTO updatedVente = venteService.createAndUpdate(venteDTO);
         return ResponseEntity.ok(updatedVente);
     }
-
+*/
 
     @GetMapping("ventes/pageAll")
     public ResponseEntity<Page<Vente>> allpage() {
         return new ResponseEntity<>(venteService.findPage(0, 5, "createdDate"), HttpStatus.OK);
+    }
+
+    @GetMapping("ventes/imprimer/{ventId}")
+    public ResponseEntity<byte[]> exportFacture(@PathVariable("ventId") String ventId) {
+        log.debug("REST request to export");
+        return this.venteService.exportFacture(ventId);
     }
 
 

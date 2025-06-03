@@ -46,9 +46,9 @@ public class Magasin extends AbstractAuditingEntity implements Serializable {
     private String contactMagasin;
     @Column(name = "responsable")
     private String responsableMag;
-    @JsonIgnore
+    /*@JsonIgnore
     @OneToMany(mappedBy = "magasin")
-    private List<Produit> produits;
+    private List<Produit> produits;*/
     @JsonIgnore
     @OneToMany(mappedBy = "magasin")
     private List<Fournisseur> fournisseurs;

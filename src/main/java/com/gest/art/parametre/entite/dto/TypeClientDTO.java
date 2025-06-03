@@ -26,49 +26,25 @@ public class TypeClientDTO extends AbstractAuditingEntity implements Serializabl
 
 	@NotBlank(message = "Le code du type client est obligatoire")
 	private String code;
-
 	@NotBlank(message = "Le libellé du type client est obligatoire")
 	private String libelle;
 
-	// Only store ID to avoid circular references
-	private String magasinId;
-
-	// Only store IDs of related clients
-	private List<String> clientsIds;
-
-	// Mapping from Entity to DTO
 	public static TypeClientDTO fromEntity(TypeClient typeClient) {
 		if (typeClient == null) {
 			return null;
 		}
-
-		return TypeClientDTO.builder()
-				.id(typeClient.getId())
-				.code(typeClient.getCode())
-				.libelle(typeClient.getLibelle())
-				.magasinId(typeClient.getMagasin() != null ?
-						typeClient.getMagasin().getId() : null)
-				.clientsIds(typeClient.getClients() != null ?
-						typeClient.getClients().stream()
-								.map(client -> client.getId())
-								.toList() : null)
-				/*.createdBy(typeClient.getCreatedBy())
-				.lastModifiedBy(typeClient.getLastModifiedBy())
-				.createdDate(typeClient.getCreatedDate())
-				.lastModifiedDate(typeClient.getLastModifiedDate())*/
-				.build();
+		TypeClientDTO typeClientDTO = new TypeClientDTO();
+		typeClientDTO.setId(typeClient.getId() );
+		typeClientDTO.setCode(typeClient.getCode());
+		typeClientDTO.setLibelle(typeClient.getLibelle());
+		return typeClientDTO;
 	}
 
-	// Mapping from DTO to Entity
-	public static TypeClient toEntity(TypeClientDTO dto) {
-		if (dto == null) {
-			return null;
-		}
-
+	public static TypeClient toEntity(TypeClientDTO typeClientDTO) {
 		return TypeClient.builder()
-				.id(dto.getId())
-				.code(dto.getCode())
-				.libelle(dto.getLibelle())
+				.id(typeClientDTO.getId())
+				.code(typeClientDTO.getCode())
+				.libelle(typeClientDTO.getLibelle())
 				// Relationships should be handled separately
 				.build();
 	}

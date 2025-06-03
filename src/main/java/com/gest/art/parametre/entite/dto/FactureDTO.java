@@ -37,10 +37,6 @@ public class FactureDTO extends AbstractAuditingEntity implements Serializable {
 				.dateFacture(facture.getDateFacture())
 				.magasinId(facture.getMagasin() != null ? facture.getMagasin().getId() : null)
 				.clientId(facture.getClient() != null ? facture.getClient().getId() : null)
-				/*.createdBy(facture.getCreatedBy())
-				.lastModifiedBy(facture.getLastModifiedBy())
-				.createdDate(facture.getCreatedDate())
-				.lastModifiedDate(facture.getLastModifiedDate())*/
 				.build();
 	}
 

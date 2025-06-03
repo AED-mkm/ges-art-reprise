@@ -1,6 +1,7 @@
 package com.gest.art.parametre.entite.dto;
 
 
+import com.gest.art.parametre.entite.Facture;
 import com.gest.art.parametre.entite.Vente;
 import com.gest.art.parametre.entite.enums.TypeVente;
 import com.gest.art.security.auditing.AbstractAuditingEntity;
@@ -29,39 +30,37 @@ public class VenteDTO extends AbstractAuditingEntity implements Serializable {
 	private BigDecimal montantBic;
 	private BigDecimal montantTTC;
 	private String factureId;
+	private Facture facture;
 	private List<String> taxesCochees;
 	// Références aux IDs des entités liées
 	private String magasinId;
 	private String clientId;
-	private String taxeId;
-	private List<LigneDeVenteDTO> lignesDeVenteIds;
+	//private String taxeId;
+	private TaxeDTO taxeDTO;
+	private List<LigneDeVenteDTO> lignesDeVente;
 
 	public static VenteDTO fromEntity(Vente vente) {
 		if (vente == null) {
 			return null;
 		}
 
-		return VenteDTO.builder()
-				.id(vente.getId())
-				.dateVente(vente.getDateVente())
-				.typeVente(vente.getTypeVente())
-				.objet(vente.getObjet())
-				.montantHt(vente.getMontantHt())
-				.montantTva(vente.getMontantTva())
-				.montantBic(vente.getMontantBic())
-				.montantTTC(vente.getMontantTTC())
-				.factureId(vente.getFactureId())
-				.magasinId(vente.getMagasin() != null ? vente.getMagasin().getId(): null)
-				.clientId(vente.getClient() != null ? vente.getClient().getId() : null)
-				.taxeId(vente.getTaxe() != null ? vente.getTaxe().getId() : null)
-				.build();
+	VenteDTO venteDTO = new VenteDTO();
+	venteDTO.setId(vente.getId());
+	venteDTO.setDateVente(vente.getDateVente());
+	venteDTO.setTypeVente(vente.getTypeVente());
+	venteDTO.setObjet(vente.getObjet());
+	venteDTO.setMontantHt(vente.getMontantHt());
+	venteDTO.setMontantTva(vente.getMontantTva());
+	venteDTO.setMontantBic(vente.getMontantBic());
+	venteDTO.setMontantTTC(vente.getMontantTTC());
+	venteDTO.setFactureId(vente.getFactureId());
+	venteDTO.setTaxeDTO(TaxeDTO.fromEntity(vente.getTaxe()));
+	venteDTO.setMagasinId(vente.getMagasin().getId());
+	venteDTO.setClientId(vente.getClient().getId());
+	return venteDTO;
 	}
 
 	public static Vente toEntity(VenteDTO dto) {
-		if (dto == null) {
-			return null;
-		}
-
 		return Vente.builder()
 				.id(dto.getId())
 				.dateVente(dto.getDateVente())

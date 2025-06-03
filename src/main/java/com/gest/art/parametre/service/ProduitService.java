@@ -26,13 +26,11 @@ import java.util.stream.Collectors;
 public class ProduitService {
     private final Logger log = LoggerFactory.getLogger(ProduitService.class);
     private final ProduitRepository produitRepository;
-    private final MagasinRepository magasinRepository;
 
 
-    public ProduitService(ProduitRepository produitRepository, MagasinRepository magasinRepository) {
+    public ProduitService(ProduitRepository produitRepository) {
         this.produitRepository = produitRepository;
 
-        this.magasinRepository = magasinRepository;
     }
 
     /**
@@ -44,11 +42,7 @@ public class ProduitService {
 
     public ProduitDTO save(final ProduitDTO produitDTO) {
         log.debug("Request to save Produit : {}", produitDTO);
-        Magasin magasin = magasinRepository.findById(produitDTO.getMagasinId())
-                .orElseThrow(() -> new EntityNotFoundException
-                        ("Magasin non trouvé avec ID: " + produitDTO.getMagasinId()));
         Produit produit = ProduitDTO.toEntity(produitDTO);
-        produit.setMagasin(magasin);
         Produit savedProduit = produitRepository.save(produit);
         return ProduitDTO.fromEntity(savedProduit);
     }

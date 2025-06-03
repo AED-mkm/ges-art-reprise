@@ -1,9 +1,12 @@
 package com.gest.art.parametre.service;
 
 import com.gest.art.parametre.entite.Banque;
+import com.gest.art.parametre.entite.Client;
 import com.gest.art.parametre.entite.Succursale;
-import com.gest.art.parametre.entite.dto.BanqueDTO;
+import com.gest.art.parametre.entite.TypeClient;
+import com.gest.art.parametre.entite.dto.ClientDTO;
 import com.gest.art.parametre.entite.dto.SuccursaleDTO;
+import com.gest.art.parametre.repository.BanqueRepository;
 import com.gest.art.parametre.repository.SuccursaleRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -24,13 +27,14 @@ import java.util.stream.Collectors;
 public class SuccursaleService {
     private final Logger log = LoggerFactory.getLogger(SuccursaleService.class);
     private final SuccursaleRepository succursaleRepository;
-    private final BanqueService banqueService;
+
+    private final BanqueRepository banqueRepository;
 
 
 
-    public SuccursaleService(SuccursaleRepository succursaleRepository, BanqueService banqueService) {
+    public SuccursaleService(SuccursaleRepository succursaleRepository, BanqueRepository banqueRepository) {
         this.succursaleRepository = succursaleRepository;
-        this.banqueService = banqueService;
+        this.banqueRepository = banqueRepository;
     }
 
     /**
@@ -40,10 +44,14 @@ public class SuccursaleService {
      * @return the Fournisseur dto
      */
     public SuccursaleDTO save(final SuccursaleDTO succursaleDTO) {
-        return SuccursaleDTO.fromEntity(succursaleRepository
-                .save(SuccursaleDTO.toEntity(succursaleDTO)));
-    }
+       Succursale succursale = SuccursaleDTO.toEntity(succursaleDTO);
+        Banque banque = banqueRepository.findBanqueById(succursaleDTO.getBanqueDTO().getId())
+                .orElseThrow(()-> new RuntimeException("banque introuvable"));
+        succursale.setBanque(banque);
+        Succursale saveSuccursale = succursaleRepository.save(succursale);
+        return SuccursaleDTO.fromEntity(saveSuccursale);
 
+    }
 
     /**
      * Update Fournisseur dto.

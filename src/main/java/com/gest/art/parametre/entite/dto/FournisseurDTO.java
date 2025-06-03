@@ -40,9 +40,9 @@ public class FournisseurDTO extends AbstractAuditingEntity implements Serializab
 
     private String contactFour;
 
-    private String magasinId;
-    private List<String> bonDeCmdeFourIds;
-    private List<EntreDTO> entreDTOS;
+   // private String magasinId;
+   /* private List<String> bonDeCmdeFourIds;
+    private List<EntreDTO> entreDTOS;*/
 
     // Mapping from Entity to DTO
     public static FournisseurDTO fromEntity(Fournisseur fournisseur) {
@@ -50,35 +50,17 @@ public class FournisseurDTO extends AbstractAuditingEntity implements Serializab
             return null;
         }
 
-        return FournisseurDTO.builder()
-                .id(fournisseur.getId())
-                .codeFour(fournisseur.getCodeFour())
-                .nomFour(fournisseur.getNomFour())
-                .adresseFour(fournisseur.getAdresseFour())
-                .contactFour(fournisseur.getContactFour())
-                .magasinId(fournisseur.getMagasin() != null ?
-                        fournisseur.getMagasin().getId() : null)
-                .bonDeCmdeFourIds(fournisseur.getBonDeCmdeFours() != null ?
-                        fournisseur.getBonDeCmdeFours().stream()
-                                .map(bon -> bon.getId())
-                                .toList() : null)
-                .entreDTOS(fournisseur.getEntres() != null ?
-                        fournisseur.getEntres().stream()
-                                .map(EntreDTO::fromEntity)
-                                .toList() : null)
-              /*  .createdBy(fournisseur.getCreatedBy())
-                .lastModifiedBy(fournisseur.getLastModifiedBy())
-                .createdDate(fournisseur.getCreatedDate())
-                .lastModifiedDate(fournisseur.getLastModifiedDate())*/
-                .build();
+     FournisseurDTO fourDTO = new FournisseurDTO();
+        fourDTO.setId(fournisseur.getId());
+        fourDTO.setCodeFour(fournisseur.getCodeFour());
+        fourDTO.setNomFour(fournisseur.getNomFour());
+        fourDTO.setAdresseFour(fournisseur.getAdresseFour());
+        fourDTO.setContactFour(fournisseur.getContactFour());
+        return fourDTO;
     }
 
     // Mapping from DTO to Entity
     public static Fournisseur toEntity(FournisseurDTO dto) {
-        if (dto == null) {
-            return null;
-        }
-
         return Fournisseur.builder()
                 .id(dto.getId())
                 .codeFour(dto.getCodeFour())

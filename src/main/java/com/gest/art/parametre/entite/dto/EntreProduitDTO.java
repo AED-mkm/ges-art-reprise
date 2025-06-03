@@ -37,17 +37,13 @@ public class EntreProduitDTO extends AbstractAuditingEntity implements Serializa
 			return null;
 		}
 
-		return EntreProduitDTO.builder()
-				.id(entreProduit.getId())
-				.quantite(entreProduit.getQuantite())
-				.prixEntre(entreProduit.getPrixEntre())
-				.entreId(entreProduit.getEntre() != null ? entreProduit.getEntre().getId() : null)
-				.produitId(entreProduit.getProduit() != null ? entreProduit.getProduit().getId() : null)
-				/*.createdBy(entreProduit.getCreatedBy())
-				.lastModifiedBy(entreProduit.getLastModifiedBy())
-				.createdDate(entreProduit.getCreatedDate())
-				.lastModifiedDate(entreProduit.getLastModifiedDate())*/
-				.build();
+		EntreProduitDTO entreProdDTO = new EntreProduitDTO();
+		entreProdDTO.setId(entreProduit.getId());
+		entreProdDTO.setQuantite(entreProduit.getQuantite());
+		entreProdDTO.setPrixEntre(entreProduit.getPrixEntre());
+		entreProdDTO.setProduitId(entreProduit.getProduit().getId());
+		entreProdDTO.setEntreId(entreProduit.getEntre().getId());
+		return entreProdDTO;
 	}
 
 	public static EntreProduit toEntity(EntreProduitDTO dto) {

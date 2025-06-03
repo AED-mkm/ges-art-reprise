@@ -29,7 +29,6 @@ public class TypeClientService {
         this.typeClientRepository = typeClientRepository;
     }
 
-
     /**
      * Save Fournisseur dto.
      *
