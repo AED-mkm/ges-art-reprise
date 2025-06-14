@@ -5,9 +5,9 @@ import com.gest.art.parametre.entite.Client;
 import com.gest.art.parametre.entite.Magasin;
 import com.gest.art.parametre.entite.Produit;
 import com.gest.art.parametre.entite.ProduitBordLiv;
+import com.gest.art.parametre.entite.StockProduit;
 import com.gest.art.parametre.entite.dto.BordereauLivraisonDTO;
 import com.gest.art.parametre.entite.dto.ProduitBordLivDTO;
-import com.gest.art.parametre.entite.dto.VenteDTO;
 import com.gest.art.parametre.entite.exception.ProduitNotFoundException;
 import com.gest.art.parametre.entite.mapper.BordereauMapper;
 import com.gest.art.parametre.entite.mapper.ProduitBordLivMapper;
@@ -16,11 +16,11 @@ import com.gest.art.parametre.repository.ClientRepository;
 import com.gest.art.parametre.repository.MagasinRepository;
 import com.gest.art.parametre.repository.ProduitBordLivRepository;
 import com.gest.art.parametre.repository.ProduitRepository;
+import com.gest.art.parametre.repository.StockProduitRepository;
 import com.gest.art.security.Utils.validator.BorderearValidator;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import jakarta.validation.ValidationException;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +45,8 @@ public class BordereauService {
     private final ProduitRepository produitRepository;
     private final ClientRepository clientRepository;
 
+    private final StockProduitRepository stockProduitRepository;
+
     @Autowired
     private BordereauMapper borderearMapper;
 
@@ -59,12 +61,13 @@ public class BordereauService {
     public BordereauService(ProduitRepository produitRepository,
                             ProduitBordLivRepository produitBordLivRepository, MagasinRepository magasinRepository, BordereauRepository bordereauRepository, ClientRepository
                                 clientRepository,
-                            BordereauMapper borderearMapper, StockService stockService) {
+                            StockProduitRepository stockProduitRepository, BordereauMapper borderearMapper, StockService stockService) {
         this.produitBordLivRepository = produitBordLivRepository;
         this.produitRepository = produitRepository;
         this.magasinRepository = magasinRepository;
         this.bordereauRepository = bordereauRepository;
         this.clientRepository = clientRepository;
+        this.stockProduitRepository = stockProduitRepository;
         this.borderearMapper = borderearMapper;
         this.stockService = stockService;
     }
@@ -180,21 +183,21 @@ public class BordereauService {
 
         Magasin magasin = magasinRepository.findById(dto.getMagasinId())
                 .orElseThrow(() -> new EntityNotFoundException("Magasin ID " + dto.getMagasinId() + " non trouvé"));
-
-        BordereauLivraison bord = borderearMapper.toEntity(dto);
-        bord.setClient(client);
-        bord.setMagasin(magasin);
-        bord.setDateBordereau(LocalDate.now());
-        bord.setTotalTransport(dto.getTotalTransport());
-        bord.setTotalEmballage(dto.getTotalEmballage());
-        bord.setMontantTva(dto.getMontantTva());
-        bord.setMontantBic(dto.getMontantBic());
-        bord.setMontantPayer(dto.getMontantPayer());
-        bord.setTauxTva(dto.getTauxTva());
-        bord.setTauxBic(dto.getTauxBic());
+        BordereauLivraison bordereau = BordereauLivraisonDTO.toEntity(dto);
+        bordereau.setClient(client);
+        bordereau.setMagasin(magasin);
+        bordereau.setDateBordereau(LocalDate.now());
+        bordereau.setTotalTransport(dto.getTotalTransport());
+        bordereau.setTotalEmballage(dto.getTotalEmballage());
+        bordereau.setMontantTtc(dto.getMontantTtc());
+        /*bordereau.setMontantTva(dto.getMontantTva());
+        bordereau.setMontantBic(dto.getMontantBic());
+        bordereau.setMontantPayer(dto.getMontantPayer());
+        bordereau.setTauxTva(dto.getTauxTva());
+        bordereau.setTauxBic(dto.getTauxBic());*/
         //bord.setEtatBordereau(...);
         log.info( "AAAAAAAAAAAAAAAOOOOOOOOOO:"+dto);
-        return bordereauRepository.save(bord);
+        return bordereauRepository.save(bordereau);
     }
 
     private void traiterProduits(BordereauLivraisonDTO dto, BordereauLivraison bord) {
@@ -205,10 +208,12 @@ public class BordereauService {
         for (ProduitBordLivDTO bordLivDTO : dto.getProduitBordLivs()) {
             Produit produit = produitRepository.findById(bordLivDTO.getProduitId())
                     .orElseThrow(() -> new ProduitNotFoundException("Produit ID " + bordLivDTO.getProduitId() + " introuvable."));
-            validerQuantiteProduit(bordLivDTO, produit);
-            BigDecimal prixTotal = calculerEtMettreAJourProduit(bordLivDTO, produit);
+            StockProduit stockProduit = stockProduitRepository.findByProduitId(produit.getId())
+                    .orElseThrow(() -> new ProduitNotFoundException("Produit ID "));
+            validerQuantiteProduit(bordLivDTO, stockProduit);
+            BigDecimal prixTotal = calculerEtMettreAJourProduit(bordLivDTO, stockProduit);
             prixTotalBord = prixTotalBord.add(prixTotal);
-            creerProduitBordLiv(bordLivDTO, produit, bord, prixTotal);
+            creerProduitBordLiv(bordLivDTO, produit, stockProduit,bord, prixTotal);
         }
         montantHt = prixTotalBord.add(frais);
         bord.setMontantTtc(montantHt);
@@ -224,17 +229,16 @@ public class BordereauService {
      * @param bord
      * @param prixTotal
      */
-    private void creerProduitBordLiv(ProduitBordLivDTO bordLivDTO, Produit produit,
+    private void creerProduitBordLiv(ProduitBordLivDTO bordLivDTO, Produit produit, StockProduit stockProduit,
                                      BordereauLivraison bord, BigDecimal prixTotal) {
-        ProduitBordLiv ligneBord = new ProduitBordLiv();
+        ProduitBordLiv ligneBord = ProduitBordLivDTO.toEntity(bordLivDTO);
         ligneBord.setProduit(produit);
         bordLivDTO.setCodeprod(produit.getCodeprod());
         bordLivDTO.setLibelle(produit.getLibelle());
-        bordLivDTO.setStockProduit(produit.getStockProduit());
+        bordLivDTO.setStockProduit(stockProduit.getStockProduit());
         ligneBord.setQteBordLiv(bordLivDTO.getQteBordLiv());
         ligneBord.setPrixAchatBordLiv(bordLivDTO.getPrixAchatBordLiv());
         ligneBord.setBordereauLivraison(bord);
-        ligneBord.setPrixBordLiv(calculerEtMettreAJourProduit(bordLivDTO, produit));
         produitBordLivRepository.save(ligneBord);
         log.info("Montant par ligne : {}", prixTotal);
     }
@@ -242,15 +246,15 @@ public class BordereauService {
     /**
      * Fonction de Calcul et Mise à Jour du Produit
      * @param bordLivDTO
-     * @param produit
+     * @param stockProduit
      * @return prixTotal
      */
 
-    private BigDecimal calculerEtMettreAJourProduit(ProduitBordLivDTO bordLivDTO, Produit produit) {
+    private BigDecimal calculerEtMettreAJourProduit(ProduitBordLivDTO bordLivDTO, StockProduit stockProduit) {
        // bordLivDTO.setPrixAchatBordLiv(produit.getPrixActuel());
         BigDecimal prixTotal = bordLivDTO.getPrixAchatBordLiv().multiply(bordLivDTO.getQteBordLiv());
-        produit.setStockProduit(produit.getStockProduit().subtract(bordLivDTO.getQteBordLiv()));
-        produitRepository.save(produit);
+        stockProduit.setStockProduit(stockProduit.getStockProduit().subtract(bordLivDTO.getQteBordLiv()));
+        stockProduitRepository.save(stockProduit);
         bordLivDTO.setPrixBordLiv(prixTotal);
         return prixTotal;
     }
@@ -258,15 +262,15 @@ public class BordereauService {
     /**
      * Fonction de Validation de la Quantité
      * @param bordLivDTO
-     * @param produit
+     * @param stockProduit
      */
 
-    private void validerQuantiteProduit(ProduitBordLivDTO bordLivDTO, Produit produit) {
+    private void validerQuantiteProduit(ProduitBordLivDTO bordLivDTO, StockProduit stockProduit) {
         if (bordLivDTO.getQteBordLiv() == null || bordLivDTO.getQteBordLiv().compareTo(BigDecimal.ZERO) <= 0) {
             throw new ValidationException("La quantité du produit doit être positive.");
         }
 
-        if (bordLivDTO.getQteBordLiv().compareTo(produit.getStockProduit()) > 0) {
+        if (bordLivDTO.getQteBordLiv().compareTo(stockProduit.getStockProduit()) > 0) {
             throw new ValidationException("La quantité saisie est supérieure à la quantité en stock.");
         }
     }

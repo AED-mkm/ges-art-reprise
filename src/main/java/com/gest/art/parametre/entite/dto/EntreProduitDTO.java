@@ -29,6 +29,8 @@ public class EntreProduitDTO extends AbstractAuditingEntity implements Serializa
 	//private String entreId;
 	@NotBlank
 	private String produitId;
+	private Integer codeprod;
+	private String libelle;
 
 
 
