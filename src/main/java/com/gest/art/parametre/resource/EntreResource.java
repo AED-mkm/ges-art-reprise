@@ -3,6 +3,7 @@ package com.gest.art.parametre.resource;
 import com.gest.art.parametre.entite.Banque;
 import com.gest.art.parametre.entite.Entre;
 import com.gest.art.parametre.entite.dto.EntreDTO;
+import com.gest.art.parametre.entite.dto.EntreProduitDTO;
 import com.gest.art.parametre.entite.dto.MagasinDTO;
 import com.gest.art.parametre.service.EntreService;
 import com.gest.art.security.config.HeaderUtil;
@@ -64,6 +65,24 @@ public class EntreResource {
                 .created(new URI("/api/v1/entres/" + result.getId()))
                 .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId()))
                 .body(result);
+    }
+
+    @GetMapping("/entres/{id}")
+    public ResponseEntity<EntreDTO> getLigne(@PathVariable final String id) {
+        log.debug("REST request to get ligne : {}", id);
+        EntreDTO dto = entreService.findOne(id);
+        return ResponseEntity.ok(dto);
+    }
+
+
+    @DeleteMapping("/entres/{id}")
+    public ResponseEntity<Void> deleteLigne(@PathVariable final String id) {
+        log.debug("REST request to delete ligne : {}", id);
+        entreService.delete(id);
+        return ResponseEntity
+                .noContent()
+                .headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id))
+                .build();
     }
 
     @GetMapping("entres/pageAll")

@@ -43,7 +43,6 @@ public class FournisseurDTO extends AbstractAuditingEntity implements Serializab
    // private String magasinId;
    /* private List<String> bonDeCmdeFourIds;
     private List<EntreDTO> entreDTOS;*/
-
     // Mapping from Entity to DTO
     public static FournisseurDTO fromEntity(Fournisseur fournisseur) {
         if (fournisseur == null) {

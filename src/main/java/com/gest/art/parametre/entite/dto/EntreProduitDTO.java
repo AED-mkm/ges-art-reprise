@@ -44,6 +44,8 @@ public class EntreProduitDTO extends AbstractAuditingEntity implements Serializa
 		entreProdDTO.setQuantite(entreProduit.getQuantite());
 		entreProdDTO.setPrixEntre(entreProduit.getPrixEntre());
 		entreProdDTO.setProduitId(entreProduit.getProduit().getId());
+		entreProdDTO.setCodeprod(entreProduit.getProduit().getCodeprod());
+		entreProdDTO.setLibelle(entreProduit.getProduit().getLibelle());
 		//entreProdDTO.setEntreId(entreProduit.getEntre().getId());
 		return entreProdDTO;
 	}

@@ -25,6 +25,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 import java.util.Objects;
 
 @RestController
@@ -100,5 +101,11 @@ public class EntreProduitsResource {
     @GetMapping("entreProduits/pageAll")
     public ResponseEntity<Page<EntreProduit>> allpage() {
         return new ResponseEntity<>(entreProduitService.findPage(0, 5, "createdDate"), HttpStatus.OK);
+    }
+
+    @GetMapping("entreProduits/details/{entreId}")
+    public ResponseEntity<List<EntreProduitDTO>>listEntreProduitByEntre(@PathVariable("entreId") String entreId) {
+        List<EntreProduitDTO> liste = entreProduitService.listEntreProduitByEntre(entreId);
+        return ResponseEntity.ok().body(liste);
     }
 }

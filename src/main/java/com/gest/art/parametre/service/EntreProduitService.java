@@ -1,9 +1,7 @@
 package com.gest.art.parametre.service;
 
 import com.gest.art.parametre.entite.EntreProduit;
-import com.gest.art.parametre.entite.LigneDeVente;
 import com.gest.art.parametre.entite.dto.EntreProduitDTO;
-import com.gest.art.parametre.entite.dto.LigneDeVenteDTO;
 import com.gest.art.parametre.repository.EntreProduitRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -13,6 +11,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @Slf4j
@@ -62,6 +62,14 @@ public class EntreProduitService {
 		Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
 		return entreProduitRepository.findAll(pageable);
 	}
+
+	public List<EntreProduitDTO>listEntreProduitByEntre(String entreId){
+		return entreProduitRepository.findByEntreId(entreId)
+				.stream()
+				.map(EntreProduitDTO::fromEntity)
+				.toList();
+	}
+
 
 
 }

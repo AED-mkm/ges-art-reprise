@@ -187,11 +187,7 @@ public class VenteService {
             factureRepository.save(facture);
             vente.setObjet("FAC " + facture.getNumFacture());
             vente.setFactureId(facture.getId());
-
-
-
             // Mise à jour de l'objet Vente
-
             venteDTO.setMontantTva(vente.getMontantTva());
             venteDTO.setMontantBic(vente.getMontantBic());
             venteDTO.setMontantTTC(vente.getMontantTTC());

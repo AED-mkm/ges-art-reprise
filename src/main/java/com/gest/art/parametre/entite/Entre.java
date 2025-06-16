@@ -72,9 +72,9 @@ public class Entre extends AbstractAuditingEntity implements Serializable {
     @JsonIgnoreProperties(value = "entre", allowSetters = true)
     private Magasin magasin;
     @OneToMany(mappedBy = "entre", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<EntreProduit> entreProduits = new ArrayList<>();
+    private List<EntreProduit> entreProduits;
     @JsonIgnore
     @OneToMany(mappedBy = "entre", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<StockProduit> stockProduits = new ArrayList<>();
+    private List<StockProduit> stockProduits;
 
 }

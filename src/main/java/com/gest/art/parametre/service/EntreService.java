@@ -3,12 +3,15 @@ package com.gest.art.parametre.service;
 import com.gest.art.parametre.entite.Entre;
 import com.gest.art.parametre.entite.EntreProduit;
 import com.gest.art.parametre.entite.Fournisseur;
+import com.gest.art.parametre.entite.LigneDeVente;
 import com.gest.art.parametre.entite.Magasin;
 import com.gest.art.parametre.entite.Produit;
 import com.gest.art.parametre.entite.StockProduit;
 import com.gest.art.parametre.entite.dto.EntreDTO;
 import com.gest.art.parametre.entite.dto.EntreProduitDTO;
+import com.gest.art.parametre.entite.dto.LigneDeVenteDTO;
 import com.gest.art.parametre.entite.dto.MagasinDTO;
+import com.gest.art.parametre.entite.exception.ProduitNotFoundException;
 import com.gest.art.parametre.entite.mapper.EntreMapper;
 import com.gest.art.parametre.repository.EntreProduitRepository;
 import com.gest.art.parametre.repository.EntreRepository;
@@ -32,11 +35,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+
 
 
 @Service
@@ -72,7 +71,7 @@ public class EntreService {
 
     @Transactional
     public EntreDTO save(final EntreDTO entreDTO) {
-        try {
+
             // ===== 1. VALIDATION =====
             // Valide les champs obligatoires et les règles métier
             EntreValidator.validate(entreDTO);
@@ -88,122 +87,79 @@ public class EntreService {
                     .orElseThrow(() -> new EntityNotFoundException
                             ("Fournisseur ID  non trouvé"));
 
-            // ===== 3. CRÉATION DE L'ENTRÉE =====
-            Entre entre = EntreDTO.toEntity(entreDTO);
-            entre.setMagasin(magasin);
-            entreDTO.setNomMagasin(magasin.getNomMagasin());
-            entre.setFournisseur(fournisseur);
-            entreDTO.setNomFour(fournisseur.getNomFour());
-            entreDTO.setObjet(entreDTO.getObjet());
-            entreDTO.setNumBordLiv(entreDTO.getNumBordLiv());
-            entreDTO.setDateEnt(LocalDate.now()); // Date système
+        // ===== CRÉATION DE L'ENTRÉE =====
+        Entre entre = EntreDTO.toEntity(entreDTO);
+        entre.setMagasin(magasin);
+        entreDTO.setNomMagasin(magasin.getNomMagasin());
+        entre.setFournisseur(fournisseur);
+        entreDTO.setNomFour(fournisseur.getNomFour());
+        entreDTO.setObjet(entreDTO.getObjet());
+        entreDTO.setNumBordLiv(entreDTO.getNumBordLiv());
+        entreDTO.setDateEnt(LocalDate.now()); // Date système
+        try{
+                for (EntreProduitDTO ligneEndDTO : entreDTO.getEntreProduits()) {
+                    Produit produit = produitRepository.findById(ligneEndDTO.getProduitId())
+                            .orElseThrow(() -> new ProduitNotFoundException("Produit ID " + ligneEndDTO.getProduitId() + " introuvable."));
 
-            // ===== 4. GESTION DES PRODUITS =====
-            // Processus métier pour les produits
-            List<EntreProduit> entreProduits = processProduits(entreDTO, entre);
-            entre.setEntreProduits(entreProduits);
+                    if (ligneEndDTO.getQuantite() == null || ligneEndDTO.getQuantite().compareTo(BigDecimal.ZERO) <= 0) {
+                        throw new ValidationException("La quantité du produit doit être positive.");
+                    }
 
+                    if (ligneEndDTO.getPrixEntre() == null || ligneEndDTO.getPrixEntre().compareTo(BigDecimal.ZERO) <= 0) {
+                        throw new ValidationException("Le prix d'entrée doit être positif");
+                    }
 
-            // ===== 5. SAUVEGARDE =====
-            // Sauvegarde en cascade (Entre + EntreProduit)
-             Entre savedEntre = entreRepository.save(entre);
+                    EntreProduit entreProduit = EntreProduitDTO.toEntity(ligneEndDTO);
+                    entreProduit.setProduit(produit);
+                    ligneEndDTO.setCodeprod(produit.getCodeprod());
+                    ligneEndDTO.setLibelle(produit.getLibelle());
+                    entreProduit.setPrixEntre(ligneEndDTO.getPrixEntre());
+                    entreProduit.setQuantite(ligneEndDTO.getQuantite());
+                    entreProduit.setEntre(entre);
+                    entreProduitRepository.save(entreProduit);
 
-            // Conversion en DTO pour la réponse
-             return entreDTO;
+                    StockProduit stockProduit = stockProduitRepository.findByProduitId(produit.getId())
+                            .orElseGet(() -> {
+                                StockProduit sp = new StockProduit();
+                                sp.setProduit(produit);
+                                sp.setCoutAchat(BigDecimal.ZERO);
+                                sp.setStockProduit(BigDecimal.ZERO); // Initialisation
+                                return sp;
+                            });
+                    stockProduit.setStockProduit(stockProduit.getStockProduit().add(ligneEndDTO.getQuantite()));
+                    stockProduit.setCoutAchat(ligneEndDTO.getPrixEntre());
+                    stockProduit.setMagasin(entre.getMagasin());
+                    stockProduitRepository.save(stockProduit);
+                    stockProduitRepository.save(stockProduit);
+                }
 
-          /*  return EntreDTO.fromEntity(
-                    entreRepository.save(
-                            EntreDTO.toEntity(entreDTO)));*/
+            Entre savedEntre = entreRepository.save(entre);
+            return entreDTO;
 
-        } catch (EntityNotFoundException | ValidationException e) {
-            // On relance les exceptions métier telles quelles
-            throw e;
-        } catch (Exception e) {
-            // Log et encapsulation des autres exceptions
-            log.error("Erreur lors de la sauvegarde de l'entrée", e);
-            throw new ServiceException("Erreur technique lors de la sauvegarde", e);
-        }
+        } catch (ProduitNotFoundException | ValidationException e) {
+         log.warn("Échec de validation pour client ID {} : {}", entreDTO.getFournisseurId(), e.getMessage());
+         throw e;
+         } catch (Exception e) {
+         log.error("Erreur lors de la création de la vente pour client ID {} : {}", entreDTO.getMagasinId(), e.getMessage(), e);
+                    throw new ServiceException("Erreur lors de la création de la vente.", e);
+         }
+
+}
+
+    public EntreDTO findOne(String id) {
+        log.debug("Request to get Entre : {}", id);
+        return entreRepository.findById(id)
+                .map(EntreDTO::fromEntity)
+                .orElseThrow(() -> new EntityNotFoundException("non trouver"));
     }
 
-    /**
-     * Traite la liste des produits associés à une entrée de stock.
-     *
-     * @param dto DTO contenant les informations des produits à traiter
-     * @param entre L'entité Entre à laquelle lier les produits
-     * @return Liste des EntreProduit créés
-     * @throws EntityNotFoundException si un produit n'est pas trouvé en base
-     */
-    private List<EntreProduit> processProduits(EntreDTO dto, Entre entre) {
-        // 1. Extraction des IDs des produits pour optimisation du chargement
-        List<String> produitIds = dto.getEntreProduits().stream()
-                .map(EntreProduitDTO::getProduitId)
-                .distinct() // Évite les doublons
-                .toList();
-
-        // 2. Chargement batch des produits en une seule requête
-        Map<String, Produit> produitsMap = produitRepository.findAllById(produitIds)
-                .stream()
-                .collect(Collectors.toMap(
-                        Produit::getId,
-                        Function.identity(),
-                        (existing, replacement) -> existing // Gestion des doublons
-                ));
-
-        // 3. Traitement de chaque produit
-        return dto.getEntreProduits().stream().map(epDTO -> {
-            // 3.1 Vérification de l'existence du produit
-            Produit produit = Optional.ofNullable(produitsMap.get(epDTO.getProduitId()))
-                    .orElseThrow(() -> new EntityNotFoundException(
-                            String.format("Produit [ID: %s] non trouvé", epDTO.getProduitId())
-                    ));
-
-            // 3.2 Mise à jour du stock et du prix via le service dédié
-          /*  stockService.mettreAJourStockEtPrix(
-                    produit,
-                    epDTO.getQuantite(),
-                    epDTO.getPrixEntre()
-                    );
-*/
-
-            // 3.3 Création de la liaison Entre-Produit
-            EntreProduit entreProduit = EntreProduit.builder()
-                    .produit(produit)
-                    .entre(entre)
-                    .quantite(epDTO.getQuantite())
-                    .prixEntre(epDTO.getPrixEntre())
-                    .build();
-
-            StockProduit stockProduit = stockProduitRepository.findByProduitId(produit.getId())
-                    .orElseGet(() -> {
-                        StockProduit sp = new StockProduit();
-                        sp.setProduit(produit);
-                        sp.setCoutAchat(BigDecimal.ZERO);
-                        sp.setStockProduit(BigDecimal.ZERO); // Initialisation
-                        return sp;
-                    });
-
-            // Mise à jour de la quantité
-            stockProduit.setStockProduit(stockProduit.getStockProduit().add(epDTO.getQuantite()));
-            stockProduit.setCoutAchat(epDTO.getPrixEntre());
-            stockProduit.setMagasin(entre.getMagasin());
-            stockProduitRepository.save(stockProduit);
-            //Validation des données avant retour
-            validateEntreProduit(entreProduit);
-            log.info( "MMMMMMMMMMM:"+entre.getMagasin());
-            return entreProduit;
-        }).toList();
-    }
-
-    /**
-     * Valide les données d'un EntreProduit avant persistance.
-     */
-    private void validateEntreProduit(EntreProduit entreProduit) {
-        if (entreProduit.getQuantite() == null || entreProduit.getQuantite().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new ValidationException("La quantité doit être positive");
+    public void delete(final String id) {
+        log.debug("Request to delete ligne de vente : {}", id);
+        if (id == null) {
+            log.info("L'id est null");
+            return;
         }
-        if (entreProduit.getPrixEntre() == null || entreProduit.getPrixEntre().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new ValidationException("Le prix d'entrée doit être positif");
-        }
+        entreRepository.deleteById(id);
     }
 
     public Page<Entre> findPage(final int pageNo, final int pageSize, final String sortBy) {
