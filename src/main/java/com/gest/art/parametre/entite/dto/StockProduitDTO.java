@@ -15,6 +15,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -47,24 +48,34 @@ public class StockProduitDTO extends AbstractAuditingEntity implements Serializa
     private BigDecimal prixMax = BigDecimal.ZERO;;
     private BigDecimal stockProduit = BigDecimal.ZERO;;
     private BigDecimal coutAchat = BigDecimal.ZERO;;
-    private BigDecimal ancienCoutAchat = BigDecimal.ZERO;;
-    private ProduitDTO produitDTO;
-    private MagasinDTO magasinDTO;
-    private String venteId;
-    private String entreId;
+    private BigDecimal ancienCoutAchat = BigDecimal.ZERO;
+    private String produitId;
+    private Integer codeprod;
+    private String libelle;
+  /*  private ProduitDTO produitDTO;
+    private MagasinDTO magasinDTO;*/
+    private String magasinId;
+    private String codeMagasin;
+    private String nomMagasin;
+    /*private String venteId;
+    private String entreId;*/
 
     public static StockProduitDTO fromEntity(StockProduit stockProduit) {
         if (stockProduit == null) {
             return null;
         }
-
         StockProduitDTO stockProduitDTO = new StockProduitDTO();
         stockProduitDTO.setId(stockProduit.getId());
         stockProduitDTO.setStockProduit(stockProduit.getStockProduit());
         stockProduitDTO.setPrixMax(stockProduit.getPrixMax());
         stockProduitDTO.setCoutAchat(stockProduit.getCoutAchat());
         stockProduitDTO.setAncienCoutAchat(stockProduit.getAncienCoutAchat());
-        stockProduitDTO.setMagasinDTO(MagasinDTO.fromEntity(stockProduit.getMagasin()));
+        stockProduitDTO.setProduitId(stockProduit.getProduit().getId());
+        stockProduitDTO.setCodeprod(stockProduit.getProduit().getCodeprod());
+        stockProduitDTO.setLibelle(stockProduit.getProduit().getLibelle());
+        stockProduitDTO.setMagasinId(stockProduit.getMagasin().getId());
+        stockProduitDTO.setCodeMagasin(stockProduit.getMagasin().getCodeMagasin());
+        stockProduitDTO.setNomMagasin(stockProduit.getMagasin().getNomMagasin());
         return stockProduitDTO;
     }
 
@@ -75,8 +86,6 @@ public class StockProduitDTO extends AbstractAuditingEntity implements Serializa
                 .prixMax(dto.getPrixMax()!=null?dto.getPrixMax():BigDecimal.ZERO)
                 .coutAchat(dto.getCoutAchat()!=null?dto.getCoutAchat():BigDecimal.ZERO)
                 .ancienCoutAchat(dto.getAncienCoutAchat()!=null?dto.getAncienCoutAchat():BigDecimal.ZERO)
-                .magasin(MagasinDTO.toEntity(dto.getMagasinDTO()))
-                .produit(ProduitDTO.toEntity(dto.getProduitDTO()))
                 // Les relations doivent être gérées séparément
                 .build();
     }

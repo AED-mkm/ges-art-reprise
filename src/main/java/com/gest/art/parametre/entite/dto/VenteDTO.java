@@ -43,7 +43,6 @@ public class VenteDTO extends AbstractAuditingEntity implements Serializable {
 		if (vente == null) {
 			return null;
 		}
-
 	VenteDTO venteDTO = new VenteDTO();
 	venteDTO.setId(vente.getId());
 	venteDTO.setDateVente(vente.getDateVente());

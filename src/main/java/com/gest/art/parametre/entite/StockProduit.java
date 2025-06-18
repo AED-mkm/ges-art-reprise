@@ -66,12 +66,12 @@ public class StockProduit extends AbstractAuditingEntity implements Serializable
     @Column(name = "anc_cout_achat")
     private BigDecimal ancienCoutAchat;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "produit_id", referencedColumnName = "id")
     @JsonIgnoreProperties(value = "stock_id", allowSetters = true)
     private Produit produit;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "mag_id", referencedColumnName = "id")
     @JsonIgnoreProperties(value = "stock_id", allowSetters = true)
     private Magasin magasin;

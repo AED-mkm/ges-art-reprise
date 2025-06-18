@@ -2,6 +2,7 @@ package com.gest.art.parametre.resource;
 
 
 import com.gest.art.parametre.entite.StockProduit;
+import com.gest.art.parametre.entite.dto.EntreProduitDTO;
 import com.gest.art.parametre.entite.dto.StockProduitDTO;
 import com.gest.art.parametre.repository.StockProduitRepository;
 import com.gest.art.parametre.service.StockProduitService;
@@ -48,27 +49,6 @@ public class StockProduitResource {
 
 
     /**
-     * {@code POST  /Magasins} : Create a new Magasin.
-     *
-     * @param stockProduitDTO the MagasinDTO to create.
-     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new MagasinDTO,
-     * or with status {@code 400 (Bad Request)} if the Magasin has already an ID.
-     * @throws URISyntaxException if the Location URI syntax is incorrect.
-     */
-    @PostMapping("/stockProduits")
-    public ResponseEntity<StockProduitDTO> createStockProduit(@RequestBody final StockProduitDTO stockProduitDTO) throws URISyntaxException {
-        log.debug("REST request to save Magasin : {}", stockProduitDTO);
-        if (stockProduitDTO.getId() != null) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "A new stockProduit cannot already have an ID");
-        }
-        StockProduitDTO result = stockProduitService.save(stockProduitDTO);
-        return ResponseEntity
-                .created(new URI("/api/v1/stockProduit/" + result.getId()))
-                .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId()))
-                .body(result);
-    }
-
-    /**
      * {@code PUT  /Magasins/:id} : Updates an existing Magasin.
      *
      * @param id         the id of the MagasinDTO to save.
@@ -78,7 +58,7 @@ public class StockProduitResource {
      * with status {@code 500 (Internal Server Error)} if the MagasinDTO couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
-    @PutMapping("/stockProduits/{id}")
+    @PutMapping("stockProduits/{id}")
     public ResponseEntity<StockProduitDTO> updateMagasin(@PathVariable(value = "id", required = false) final String id, @RequestBody final StockProduitDTO stockProduitDTO)
             throws URISyntaxException {
         log.debug("REST request to update Magasin : {}, {}", id, stockProduitDTO);
@@ -105,7 +85,7 @@ public class StockProduitResource {
      *
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of Magasins in body.
      */
-    @GetMapping("/stockProduits")
+    @GetMapping("stockProduits")
     public List<StockProduitDTO> getAllMagasins() {
         log.debug("REST request to get all Magasins");
         return stockProduitService.findAll();
@@ -117,8 +97,8 @@ public class StockProduitResource {
      * @param id the id of the MagasinDTO to retrieve.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the MagasinDTO, or with status {@code 404 (Not Found)}.
      */
-    @GetMapping("/stockProduits/{id}")
-    public ResponseEntity<StockProduitDTO> getMagasin(@PathVariable final String id) {
+    @GetMapping("stockProduits/{id}")
+    public ResponseEntity<StockProduitDTO> getStockproduit(@PathVariable final String id) {
         log.debug("REST request to get Magasin : {}", id);
         StockProduitDTO MagasinDTO = stockProduitService.findOne(id);
         return ResponseEntity.ok(MagasinDTO);
@@ -130,7 +110,7 @@ public class StockProduitResource {
      * @param id the id of the MagasinDTO to delete.
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
-    @DeleteMapping("/stockProduits/{id}")
+    @DeleteMapping("stockProduits/{id}")
     public ResponseEntity<Void> deleteMagasin(@PathVariable final String id) {
         log.debug("REST request to delete Magasin : {}", id);
         stockProduitService.delete(id);
@@ -144,6 +124,30 @@ public class StockProduitResource {
     public ResponseEntity<Page<StockProduit>> allpage() {
         return new ResponseEntity<>(stockProduitService.findPage(0, 5, "createdDate"), HttpStatus.OK);
     }
+
+    /**
+     * retourne stockproduit par magasinId
+     * @param magasinId
+     * @return List
+     */
+    @GetMapping("stockProduits/details/{magasinId}")
+    public ResponseEntity<List<StockProduitDTO>>listStockProduitByMagasin(@PathVariable("magasinId") String magasinId) {
+        List<StockProduitDTO> liste = stockProduitService.findByMagasinId(magasinId);
+        return ResponseEntity.ok().body(liste);
+    }
+
+    /**
+     * retourne le stockProduit par produitId
+     * @param produitId
+     * @return List
+     */
+
+    @GetMapping("stockProduits/details-produit/{produitId}")
+    public ResponseEntity<List<StockProduitDTO>>listStockProduitByProduit(@PathVariable("produitId") String produitId) {
+        List<StockProduitDTO> liste = stockProduitService.findAllByProduitId(produitId);
+        return ResponseEntity.ok().body(liste);
+    }
+
 
 
 }

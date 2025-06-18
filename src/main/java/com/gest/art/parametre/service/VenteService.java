@@ -114,8 +114,8 @@ public class VenteService {
         Vente vente = VenteDTO.toEntity(venteDTO);
         vente.setClient(client);
         vente.setMagasin(magasin);
-        vente.setDateVente(LocalDate.now());
-        vente.setTypeVente(TypeVente.F);
+        venteDTO.setTypeVente(TypeVente.F);
+        venteDTO.setDateVente(LocalDate.now());
         venteRepository.save(vente);
         BigDecimal prixTotalVente = BigDecimal.ZERO;
         try {
@@ -135,7 +135,6 @@ public class VenteService {
                 }
                 ligneDTO.setPrixUnitaire(produit.getPrixActuel());
                 BigDecimal prixTotal = ligneDTO.getPrixUnitaire().multiply(ligneDTO.getQteVente());
-               //produit.setStockProduit(produit.getStockProduit().subtract(ligneDTO.getQteVente()));
                 stockProduit.setStockProduit(stockProduit.getStockProduit().subtract(ligneDTO.getQteVente()));
                 ligneDTO.setPrixTotal(prixTotal);
                 stockProduitRepository.save(stockProduit);
@@ -153,7 +152,6 @@ public class VenteService {
                 ligneDeVenteRepository.save(ligneDeVente);
                 log.info( " montant par ligne AAAAAAAAAA:"+prixTotal );
             }
-
 
             // Calcul du prix total HT
             BigDecimal prixTotalHT = prixTotalVente;
@@ -185,13 +183,13 @@ public class VenteService {
             facture.setDateFacture(LocalDate.now());
             facture.setNumFacture(numeroService.generateFactureNumber(venteDTO.getMagasinId()));
             factureRepository.save(facture);
-            vente.setObjet("FAC " + facture.getNumFacture());
+            venteDTO.setObjet("FAC " + facture.getNumFacture());
             vente.setFactureId(facture.getId());
             // Mise à jour de l'objet Vente
             venteDTO.setMontantTva(vente.getMontantTva());
             venteDTO.setMontantBic(vente.getMontantBic());
             venteDTO.setMontantTTC(vente.getMontantTTC());
-            venteRepository.save(vente);
+            Vente saveVente = venteRepository.save(vente);
             return venteDTO;
 
         } catch (ProduitNotFoundException | ValidationException e) {
@@ -222,11 +220,8 @@ public class VenteService {
         } else {
 
             // Création d'une nouvelle ligne
-
             LigneDeVenteDTO nouvelleLigne = new LigneDeVenteDTO();
             nouvelleLigne.setProduitId(produit.getId());
-            //nouvelleLigne.setCodeprod(produit.getCodeprod()); // Remplissage des infos produit
-            //nouvelleLigne.setLibelle(produit.getLibelle());
             nouvelleLigne.setQteVente(quantite);
             nouvelleLigne.setPrixUnitaire(produit.getPrixActuel());
             nouvelleLigne.setPrixTotal(produit.getPrixActuel().multiply(quantite));
@@ -297,8 +292,6 @@ public class VenteService {
         JasperReport jaspertReport = JasperCompileManager.compileReport(in);
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("numFacture", facture.get().getNumFacture());
-     /*   parameters.put("codeprod",produit.getCodeprod());*/
-       /* parameters.put("libelle", ligne.get(0).getProduit().getLibelle());*/
         parameters.put("qteVente", ligne.get(0).getQteVente());
         parameters.put("prixUnitaire", ligne.get(0).getPrixUnitaire());
         parameters.put("prixTotal", ligne.get(0).getPrixTotal());
@@ -312,10 +305,8 @@ public class VenteService {
         headers.setContentDispositionFormData("filename", "facture.pdf");
         JRPdfExporter exporter = new JRPdfExporter();
         exporter.setExporterInput(new SimpleExporterInput(jasperPrint));
-        // exporter.exportReport();
         return new ResponseEntity<byte[]>( JasperExportManager.exportReportToPdf(jasperPrint), headers, HttpStatus.OK);
     } catch (JRException e) {
-       // log.info("DATE DEBUT:" + diplome.getCandidat().getSession().getDebut());
         return new ResponseEntity<byte[]>( HttpStatus.INTERNAL_SERVER_ERROR);
     }
     }

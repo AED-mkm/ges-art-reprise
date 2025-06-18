@@ -63,14 +63,15 @@ public class Entre extends AbstractAuditingEntity implements Serializable {
     private String objet;
     @Column(name = "num_bl")
     private String numBordLiv;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "fourn_id", referencedColumnName = "id")
     @JsonIgnoreProperties(value = "entree", allowSetters = true)
     private Fournisseur fournisseur;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "mag_id", referencedColumnName = "id")
     @JsonIgnoreProperties(value = "entre", allowSetters = true)
     private Magasin magasin;
+    @JsonIgnore
     @OneToMany(mappedBy = "entre", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<EntreProduit> entreProduits;
     @JsonIgnore

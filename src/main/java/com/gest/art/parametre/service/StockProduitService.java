@@ -104,4 +104,17 @@ public class StockProduitService {
         Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
         return stockProduitRepository.findAll(pageable);
     }
+    public List<StockProduitDTO> findByMagasinId(String magasinId){
+        return stockProduitRepository.findByMagasinId(magasinId)
+                .stream()
+                .map(StockProduitDTO::fromEntity)
+                .toList();
+    }
+
+    public List<StockProduitDTO>findAllByProduitId(String produitId){
+        return stockProduitRepository.findByProduitId(produitId)
+                .stream()
+                .map(StockProduitDTO::fromEntity)
+                .toList();
+    }
 }

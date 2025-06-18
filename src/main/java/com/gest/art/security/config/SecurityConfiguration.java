@@ -52,6 +52,8 @@ public class SecurityConfiguration {
             "/api/v1/ventes/**",
             "/api/v1/ligneVentes",
             "/api/v1/ligneVentes/**",
+            "/api/v1/stockProduits",
+            "/api/v1/stockProduits/**",
             "/api/v1/bordereaux",
             "/api/v1/bordereaux/**",
             "/api/v1/operations",
