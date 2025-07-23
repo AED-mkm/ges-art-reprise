@@ -52,8 +52,8 @@ public class StockProduitDTO extends AbstractAuditingEntity implements Serializa
     private String produitId;
     private Integer codeprod;
     private String libelle;
-  /*  private ProduitDTO produitDTO;
-    private MagasinDTO magasinDTO;*/
+  /*  private ProduitDTO produitDTO;*/
+    private MagasinDTO magasinDTO;
     private String magasinId;
     private String codeMagasin;
     private String nomMagasin;
@@ -74,6 +74,7 @@ public class StockProduitDTO extends AbstractAuditingEntity implements Serializa
         stockProduitDTO.setCodeprod(stockProduit.getProduit().getCodeprod());
         stockProduitDTO.setLibelle(stockProduit.getProduit().getLibelle());
         stockProduitDTO.setMagasinId(stockProduit.getMagasin().getId());
+        stockProduitDTO.setMagasinDTO(stockProduitDTO.getMagasinDTO());
         stockProduitDTO.setCodeMagasin(stockProduit.getMagasin().getCodeMagasin());
         stockProduitDTO.setNomMagasin(stockProduit.getMagasin().getNomMagasin());
         return stockProduitDTO;
@@ -86,6 +87,7 @@ public class StockProduitDTO extends AbstractAuditingEntity implements Serializa
                 .prixMax(dto.getPrixMax()!=null?dto.getPrixMax():BigDecimal.ZERO)
                 .coutAchat(dto.getCoutAchat()!=null?dto.getCoutAchat():BigDecimal.ZERO)
                 .ancienCoutAchat(dto.getAncienCoutAchat()!=null?dto.getAncienCoutAchat():BigDecimal.ZERO)
+
                 // Les relations doivent être gérées séparément
                 .build();
     }

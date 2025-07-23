@@ -25,6 +25,7 @@ import com.gest.art.security.Utils.validator.VenteValidator;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import jakarta.validation.ValidationException;
+import lombok.extern.slf4j.Slf4j;
 import net.sf.jasperreports.engine.JREmptyDataSource;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperCompileManager;
@@ -32,6 +33,7 @@ import net.sf.jasperreports.engine.JasperExportManager;
 import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.JasperReport;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import net.sf.jasperreports.engine.export.JRPdfExporter;
 import net.sf.jasperreports.export.SimpleExporterInput;
 import org.hibernate.service.spi.ServiceException;
@@ -47,12 +49,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -281,26 +285,54 @@ public class VenteService {
     }
 
     public ResponseEntity<byte[]> exportFacture(String ventId){
-        Optional<Vente> vente = venteRepository.findById(ventId);
-        Optional<Facture> facture = factureRepository.findById(vente.get().getFactureId());
-        List<LigneDeVente> ligne = vente
-                .map(Vente::getLignesDeVente)
-                .orElseThrow(() -> new RuntimeException("Produit non trouvé"));;
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy").withZone( ZoneOffset.UTC);
+       	// Recherche de la vente, lance une exception si non trouvée
+		Vente vente = venteRepository.findById(ventId)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Vente non trouvée avec l'ID : " + ventId));
+
+		// Recherche de la facture associée, lance une exception si non trouvée
+		Facture facture = factureRepository.findById(vente.getFactureId())
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Facture non trouvée pour la vente avec l'ID : " + ventId));
+	    // Récupération des lignes de vente, lance une exception si non trouvées ou vides
+		List<LigneDeVente> lignesDeVente = Optional.ofNullable(vente.getLignesDeVente())
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Aucune ligne d'article trouvée pour la vente avec l'ID : " + ventId));
+
+		if (lignesDeVente.isEmpty()) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Aucune ligne d'article pour générer la facture pour la vente avec l'ID : " + ventId);
+		}
+
+	    // --- DEBUT DE LA LOGIQUE DE MAPPING DTO ---
+	    List<LigneDeVenteDTO> lignesDeVenteDTOs = new ArrayList<>();
+	    for (LigneDeVente ligneEntity : lignesDeVente) {
+		    LigneDeVenteDTO dto = new LigneDeVenteDTO();
+		    if (ligneEntity.getProduit() != null) {
+			    dto.setLibelle(ligneEntity.getProduit().getLibelle());
+			    dto.setPrixUnitaire(ligneEntity.getProduit().getPrixActuel()); // Ou prixUnitaire de la LigneDeVente si différent
+		    } else {
+			    dto.setLibelle("Produit Inconnu"); // Fallback si le produit est null
+			    dto.setPrixUnitaire(BigDecimal.ZERO);
+		    }
+
+		    dto.setQteVente(ligneEntity.getQteVente()); // Assurez-vous que c'est le bon getter de la LigneDeVente
+		    dto.setPrixTotal(ligneEntity.getPrixTotal()); // Assurez-vous que c'est le bon getter de la LigneDeVente
+		    lignesDeVenteDTOs.add(dto);
+	    }
+
+	    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy").withZone( ZoneOffset.UTC);
     try {
         InputStream in = getClass().getResourceAsStream("/reports/FACTURE.jrxml");
         JasperReport jaspertReport = JasperCompileManager.compileReport(in);
         Map<String, Object> parameters = new HashMap<>();
-        parameters.put("numFacture", facture.get().getNumFacture());
-        parameters.put("qteVente", ligne.get(0).getQteVente());
-        parameters.put("prixUnitaire", ligne.get(0).getPrixUnitaire());
-        parameters.put("prixTotal", ligne.get(0).getPrixTotal());
-        parameters.put("montantTTC", ligne.get(0).getVente().getMontantTTC());
-        parameters.put("denomination", facture.get().getClient().getDenomination());
-        parameters.put("magasin", facture.get().getMagasin().getNomMagasin());
+        parameters.put("numFacture", facture.getNumFacture());
+		parameters.put("montantttc", vente.getMontantTTC()); // Utilisation de vente.getMontantTTC() pour le montant total
+		// Vérifications nulles avant d'accéder aux propriétés pour éviter les NullPointerExceptions
+		parameters.put("denomination", facture.getClient() != null ? facture.getClient().getDenomination() : "N/A");
+		parameters.put("nomMagasin", facture.getMagasin() != null ? facture.getMagasin().getNomMagasin() : "N/A");
+
+
+	    // Pour les rapports avec plusieurs lignes d'articles, les passer comme un JRDataSource
+		parameters.put("itemDataSource", new JRBeanCollectionDataSource(lignesDeVenteDTOs));
         JasperPrint jasperPrint = JasperFillManager.fillReport(jaspertReport, parameters, new JREmptyDataSource());
-        log.info("FACTURE GENERE AVEC SUCCES");
-        HttpHeaders headers = new HttpHeaders();
+	    HttpHeaders headers = new HttpHeaders();
         headers.setContentType( MediaType.APPLICATION_PDF);
         headers.setContentDispositionFormData("filename", "facture.pdf");
         JRPdfExporter exporter = new JRPdfExporter();
@@ -308,8 +340,13 @@ public class VenteService {
         return new ResponseEntity<byte[]>( JasperExportManager.exportReportToPdf(jasperPrint), headers, HttpStatus.OK);
     } catch (JRException e) {
         return new ResponseEntity<byte[]>( HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+
     }
 
+    }
 
 }
+
+
+
+

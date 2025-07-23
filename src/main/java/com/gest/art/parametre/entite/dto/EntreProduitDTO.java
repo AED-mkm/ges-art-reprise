@@ -32,6 +32,8 @@ public class EntreProduitDTO extends AbstractAuditingEntity implements Serializa
 	private Integer codeprod;
 	private String libelle;
 
+	private ProduitDTO produitDTO;
+
 
 
 	public static EntreProduitDTO fromEntity(EntreProduit entreProduit) {
@@ -46,6 +48,7 @@ public class EntreProduitDTO extends AbstractAuditingEntity implements Serializa
 		entreProdDTO.setProduitId(entreProduit.getProduit().getId());
 		entreProdDTO.setCodeprod(entreProduit.getProduit().getCodeprod());
 		entreProdDTO.setLibelle(entreProduit.getProduit().getLibelle());
+		entreProdDTO.setProduitDTO(ProduitDTO.fromEntity(entreProduit.getProduit()));
 		//entreProdDTO.setEntreId(entreProduit.getEntre().getId());
 		return entreProdDTO;
 	}

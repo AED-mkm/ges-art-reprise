@@ -9,8 +9,10 @@ import com.gest.art.parametre.entite.Produit;
 import com.gest.art.parametre.entite.StockProduit;
 import com.gest.art.parametre.entite.dto.EntreDTO;
 import com.gest.art.parametre.entite.dto.EntreProduitDTO;
+import com.gest.art.parametre.entite.dto.FournisseurDTO;
 import com.gest.art.parametre.entite.dto.LigneDeVenteDTO;
 import com.gest.art.parametre.entite.dto.MagasinDTO;
+import com.gest.art.parametre.entite.dto.ProduitDTO;
 import com.gest.art.parametre.entite.exception.ProduitNotFoundException;
 import com.gest.art.parametre.entite.mapper.EntreMapper;
 import com.gest.art.parametre.repository.EntreProduitRepository;
@@ -78,27 +80,29 @@ public class EntreService {
 
             // ===== 2. CHARGEMENT DES ENTITÉS =====
             // Charge le magasin ou throw EntityNotFoundException
-            final Magasin magasin = magasinRepository.findById(entreDTO.getMagasinId())
+            final MagasinDTO magasin = MagasinDTO.fromEntity( magasinRepository.findById(entreDTO.getMagasinDTO().getId())
                     .orElseThrow(() -> new EntityNotFoundException
-                            ("Magasin ID non trouvé"));
+                            ("Magasin ID non trouvé")) );
 
             // Charge le fournisseur ou throw EntityNotFoundException
-            final Fournisseur fournisseur = fournisseurRepository.findById(entreDTO.getFournisseurId())
+            final FournisseurDTO fournisseur = FournisseurDTO.fromEntity( fournisseurRepository.findById(entreDTO.getFournisseurDTO().getId())
                     .orElseThrow(() -> new EntityNotFoundException
-                            ("Fournisseur ID  non trouvé"));
+                            ("Fournisseur ID  non trouvé")) );
 
         // ===== CRÉATION DE L'ENTRÉE =====
         Entre entre = EntreDTO.toEntity(entreDTO);
-        entre.setMagasin(magasin);
-        entreDTO.setNomMagasin(magasin.getNomMagasin());
-        entre.setFournisseur(fournisseur);
-        entreDTO.setNomFour(fournisseur.getNomFour());
+        /*entre.setMagasin(magasin);*/
+        entreDTO.setMagasinDTO(magasin);
+       /* entreDTO.setNomMagasin(magasin.getNomMagasin());*/
+/*        entre.setFournisseur(fournisseur);
+        entreDTO.setNomFour(fournisseur.getNomFour());*/
+        entreDTO.setFournisseurDTO(fournisseur);
         entreDTO.setObjet(entreDTO.getObjet());
         entreDTO.setNumBordLiv(entreDTO.getNumBordLiv());
         entreDTO.setDateEnt(LocalDate.now()); // Date système
         try{
                 for (EntreProduitDTO ligneEndDTO : entreDTO.getEntreProduits()) {
-                    Produit produit = produitRepository.findById(ligneEndDTO.getProduitId())
+                    Produit produit = produitRepository.findById(ligneEndDTO.getProduitDTO().getId())
                             .orElseThrow(() -> new ProduitNotFoundException("Produit ID " + ligneEndDTO.getProduitId() + " introuvable."));
 
                     if (ligneEndDTO.getQuantite() == null || ligneEndDTO.getQuantite().compareTo(BigDecimal.ZERO) <= 0) {
@@ -111,8 +115,9 @@ public class EntreService {
 
                     EntreProduit entreProduit = EntreProduitDTO.toEntity(ligneEndDTO);
                     entreProduit.setProduit(produit);
-                    ligneEndDTO.setCodeprod(produit.getCodeprod());
-                    ligneEndDTO.setLibelle(produit.getLibelle());
+/*                    ligneEndDTO.setCodeprod(produit.getCodeprod());
+                    ligneEndDTO.setLibelle(produit.getLibelle());*/
+                    ligneEndDTO.setProduitDTO(ProduitDTO.fromEntity(produit));
                     entreProduit.setPrixEntre(ligneEndDTO.getPrixEntre());
                     entreProduit.setQuantite(ligneEndDTO.getQuantite());
                     entreProduit.setEntre(entre);
@@ -129,18 +134,17 @@ public class EntreService {
                     stockProduit.setStockProduit(stockProduit.getStockProduit().add(ligneEndDTO.getQuantite()));
                     stockProduit.setCoutAchat(ligneEndDTO.getPrixEntre());
                     stockProduit.setMagasin(entre.getMagasin());
-                    stockProduitRepository.save(stockProduit);
+                    stockProduit.setMagasin(magasinRepository.findMagasinById(magasin.getId()));
                     stockProduitRepository.save(stockProduit);
                 }
-
             Entre savedEntre = entreRepository.save(entre);
             return entreDTO;
 
         } catch (ProduitNotFoundException | ValidationException e) {
-         log.warn("Échec de validation pour client ID {} : {}", entreDTO.getFournisseurId(), e.getMessage());
+         log.warn("Échec de validation pour client ID {} : {}", entreDTO.getFournisseurDTO(), e.getMessage());
          throw e;
          } catch (Exception e) {
-         log.error("Erreur lors de la création de la vente pour client ID {} : {}", entreDTO.getMagasinId(), e.getMessage(), e);
+         log.error("Erreur lors de la création de la vente pour client ID {} : {}", entreDTO.getMagasinDTO(), e.getMessage(), e);
                     throw new ServiceException("Erreur lors de la création de la vente.", e);
          }
 
