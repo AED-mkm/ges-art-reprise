@@ -2,7 +2,9 @@ package com.gest.art.parametre.service;
 
 
 
+import com.gest.art.parametre.entite.NumeroBordereau;
 import com.gest.art.parametre.entite.NumeroFacture;
+import com.gest.art.parametre.repository.BordLivNumeroRepository;
 import com.gest.art.parametre.repository.NumeroRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +22,8 @@ public class NumeroService {
 
 	private final NumeroRepository numeroRepository;
 
+	public final BordLivNumeroRepository bordLivNumeroRepository;
+
 	public String generateFactureNumber(String magasinId) {
 		int currentYear = Year.now().getValue();
 		// Récupère ou crée le compteur avec verrouillage pour éviter les conflits
@@ -34,6 +38,25 @@ public class NumeroService {
 		// Incrémente et sauvegarde
 		counter.setLastNumber(counter.getLastNumber() + 1);
 		numeroRepository.save(counter);
+		// Format: AAAA-NNNNNNN
+		return String.format("%d-%07d", currentYear, counter.getLastNumber());
+	}
+
+
+	public String generateBordereauNumber(String magasinId) {
+		int currentYear = Year.now().getValue();
+		// Récupère ou crée le compteur avec verrouillage pour éviter les conflits
+		NumeroBordereau counter = bordLivNumeroRepository.findByMagasinIdAndYear(magasinId, currentYear)
+				.orElseGet(() -> {
+					NumeroBordereau newCounter = new NumeroBordereau();
+					newCounter.setMagasinId(magasinId);
+					newCounter.setYear(currentYear);
+					newCounter.setLastNumber(0L);
+					return bordLivNumeroRepository.save(newCounter);
+				});
+		// Incrémente et sauvegarde
+		counter.setLastNumber(counter.getLastNumber() + 1);
+		bordLivNumeroRepository.save(counter);
 		// Format: AAAA-NNNNNNN
 		return String.format("%d-%07d", currentYear, counter.getLastNumber());
 	}

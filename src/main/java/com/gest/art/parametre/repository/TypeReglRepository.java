@@ -10,4 +10,5 @@ import java.util.Optional;
 
 public interface TypeReglRepository extends JpaRepository<TypeReglement, String> {
   Optional <TypeReglement> findTypeReglementById(String id);
+  TypeReglement findByCode(String code);
 }

@@ -25,7 +25,6 @@ import com.gest.art.security.Utils.validator.VenteValidator;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import jakarta.validation.ValidationException;
-import lombok.extern.slf4j.Slf4j;
 import net.sf.jasperreports.engine.JREmptyDataSource;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperCompileManager;
@@ -71,7 +70,6 @@ import java.util.stream.Collectors;
 public class VenteService {
     private final Logger log = LoggerFactory.getLogger(VenteService.class);
     private final ProduitRepository produitRepository;
-
     private final MagasinRepository magasinRepository;
     private final VenteRepository venteRepository;
     private final ClientRepository clientRepository;
@@ -108,11 +106,11 @@ public class VenteService {
         VenteValidator.validate(venteDTO);
 
         // Chargement des entités nécessaires
-        final Client client = clientRepository.findById(venteDTO.getClientId())
-                .orElseThrow(() -> new EntityNotFoundException("Client ID " + venteDTO.getClientId() + " non trouvé"));
+        final Client client = clientRepository.findById(venteDTO.getClientDTO().getId())
+                .orElseThrow(() -> new EntityNotFoundException("Client ID " + venteDTO.getClientDTO().getId() + " non trouvé"));
 
-        final Magasin magasin = magasinRepository.findById(venteDTO.getMagasinId())
-                .orElseThrow(() -> new EntityNotFoundException("Magasin ID " + venteDTO.getMagasinId() + " non trouvé"));
+        final Magasin magasin = magasinRepository.findById(venteDTO.getMagasinDTO().getId())
+                .orElseThrow(() -> new EntityNotFoundException("Magasin ID " + venteDTO.getMagasinDTO().getId() + " non trouvé"));
 
         // Création de la
         Vente vente = VenteDTO.toEntity(venteDTO);
@@ -124,8 +122,8 @@ public class VenteService {
         BigDecimal prixTotalVente = BigDecimal.ZERO;
         try {
             for (LigneDeVenteDTO ligneDTO : venteDTO.getLignesDeVente()) {
-                Produit produit = produitRepository.findById(ligneDTO.getProduitId())
-                        .orElseThrow(() -> new ProduitNotFoundException("Produit ID " + ligneDTO.getProduitId() + " introuvable."));
+                Produit produit = produitRepository.findById(ligneDTO.getProduitDTO().getId())
+                        .orElseThrow(() -> new ProduitNotFoundException("Produit ID " + ligneDTO.getProduitDTO().getId() + " introuvable."));
 
                 StockProduit stockProduit = stockProduitRepository.findByProduitId(produit.getId())
                         .orElseThrow(() -> new ProduitNotFoundException("Produit ID introuvable."));
@@ -145,9 +143,9 @@ public class VenteService {
 
                 // Création de la ligne
                 LigneDeVente ligneDeVente = LigneDeVenteDTO.toEntity(ligneDTO);
-                ligneDeVente.setProduit(produit);
-                ligneDTO.setCodeprod(produit.getCodeprod());
-                ligneDTO.setLibelle(produit.getLibelle());
+                ligneDTO.setProduitDTO(ProduitDTO.fromEntity(produit));
+                /*ligneDTO.setCodeprod(produit.getCodeprod());
+                ligneDTO.setLibelle(produit.getLibelle());*/
                 ligneDeVente.setQteVente(ligneDeVente.getQteVente());
                 ligneDeVente.setPrixUnitaire(ligneDeVente.getPrixUnitaire());
                 ligneDeVente.setVente(vente);
@@ -185,7 +183,7 @@ public class VenteService {
             facture.setClient(client);
             facture.setMagasin(magasin);
             facture.setDateFacture(LocalDate.now());
-            facture.setNumFacture(numeroService.generateFactureNumber(venteDTO.getMagasinId()));
+            facture.setNumFacture(numeroService.generateFactureNumber(venteDTO.getMagasinDTO().getId()));
             factureRepository.save(facture);
             venteDTO.setObjet("FAC " + facture.getNumFacture());
             vente.setFactureId(facture.getId());
@@ -197,11 +195,11 @@ public class VenteService {
             return venteDTO;
 
         } catch (ProduitNotFoundException | ValidationException e) {
-            log.warn("Échec de validation pour client ID {} : {}", venteDTO.getClientId(), e.getMessage());
+            log.warn("Échec de validation pour client ID {} : {}", venteDTO.getClientDTO().getId(), e.getMessage());
             throw e;
 
         } catch (Exception e) {
-            log.error("Erreur lors de la création de la vente pour client ID {} : {}", venteDTO.getClientId(), e.getMessage(), e);
+            log.error("Erreur lors de la création de la vente pour client ID {} : {}", venteDTO.getClientDTO().getId(), e.getMessage(), e);
             throw new ServiceException("Erreur lors de la création de la vente.", e);
         }
     }

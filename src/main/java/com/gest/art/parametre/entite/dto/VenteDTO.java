@@ -33,8 +33,10 @@ public class VenteDTO extends AbstractAuditingEntity implements Serializable {
 	private Facture facture;
 	private List<String> taxesCochees;
 	// Références aux IDs des entités liées
-	private String magasinId;
-	private String clientId;
+	//private String magasinId;
+	private MagasinDTO magasinDTO;
+	//private String clientId;
+	private ClientDTO clientDTO;
 	//private String taxeId;
 	private TaxeDTO taxeDTO;
 	private List<LigneDeVenteDTO> lignesDeVente;
@@ -54,8 +56,10 @@ public class VenteDTO extends AbstractAuditingEntity implements Serializable {
 	venteDTO.setMontantTTC(vente.getMontantTTC());
 	venteDTO.setFactureId(vente.getFactureId());
 	venteDTO.setTaxeDTO(TaxeDTO.fromEntity(vente.getTaxe()));
-	venteDTO.setMagasinId(vente.getMagasin().getId());
-	venteDTO.setClientId(vente.getClient().getId());
+	venteDTO.setMagasinDTO(venteDTO.getMagasinDTO());
+	//venteDTO.setMagasinId(vente.getMagasin().getId());
+	//venteDTO.setClientId(vente.getClient().getId());
+	venteDTO.setClientDTO(venteDTO.getClientDTO());
 	return venteDTO;
 	}
 

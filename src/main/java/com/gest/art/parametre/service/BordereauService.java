@@ -7,7 +7,12 @@ import com.gest.art.parametre.entite.Produit;
 import com.gest.art.parametre.entite.ProduitBordLiv;
 import com.gest.art.parametre.entite.StockProduit;
 import com.gest.art.parametre.entite.dto.BordereauLivraisonDTO;
+import com.gest.art.parametre.entite.dto.ClientDTO;
+import com.gest.art.parametre.entite.dto.DetailsBordereauDTO;
+import com.gest.art.parametre.entite.dto.MagasinDTO;
 import com.gest.art.parametre.entite.dto.ProduitBordLivDTO;
+import com.gest.art.parametre.entite.dto.ProduitDTO;
+import com.gest.art.parametre.entite.enums.EtatBordereau;
 import com.gest.art.parametre.entite.exception.ProduitNotFoundException;
 import com.gest.art.parametre.entite.mapper.BordereauMapper;
 import com.gest.art.parametre.entite.mapper.ProduitBordLivMapper;
@@ -32,7 +37,9 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -48,6 +55,9 @@ public class BordereauService {
     private final StockProduitRepository stockProduitRepository;
 
     @Autowired
+    private NumeroService numeroService;
+
+    @Autowired
     private BordereauMapper borderearMapper;
 
     @Autowired
@@ -61,14 +71,13 @@ public class BordereauService {
     public BordereauService(ProduitRepository produitRepository,
                             ProduitBordLivRepository produitBordLivRepository, MagasinRepository magasinRepository, BordereauRepository bordereauRepository, ClientRepository
                                 clientRepository,
-                            StockProduitRepository stockProduitRepository, BordereauMapper borderearMapper, StockService stockService) {
+                            StockProduitRepository stockProduitRepository, StockService stockService) {
         this.produitBordLivRepository = produitBordLivRepository;
         this.produitRepository = produitRepository;
         this.magasinRepository = magasinRepository;
         this.bordereauRepository = bordereauRepository;
         this.clientRepository = clientRepository;
         this.stockProduitRepository = stockProduitRepository;
-        this.borderearMapper = borderearMapper;
         this.stockService = stockService;
     }
 
@@ -169,35 +178,33 @@ public class BordereauService {
     @Transactional
     public BordereauLivraisonDTO createAndUpdate(final BordereauLivraisonDTO dto) {
         BorderearValidator.validate(dto);
-        final BordereauLivraison bord = creerBordereau(dto);
+        BordereauLivraison bord = creerBordereau(dto);
+        creerBordereau(dto);
         traiterProduits(dto, bord);
         appliquerTaxesSiBesoin(dto, bord);
+        dto.setDateBordereau(LocalDate.now());
+        dto.setEtatBordereau(EtatBordereau.NON_SOLDE);
+        dto.setNumBordereau(numeroService.generateBordereauNumber(dto.getMagasinDTO().getId())  );
         log.info( "AAAAAAAAAAAAAAABBBBBBBBBBBBBBBBBBBBBBBBB:"+dto);
         bordereauRepository.save(bord);
         return dto;
     }
 
     private BordereauLivraison creerBordereau(final BordereauLivraisonDTO dto) {
-        Client client = clientRepository.findById(dto.getClientId())
-                .orElseThrow(() -> new EntityNotFoundException("Client ID " + dto.getClientId() + " non trouvé"));
+        Client client = clientRepository.findById(dto.getClientDTO().getId())
+                .orElseThrow(() -> new EntityNotFoundException("Client ID " + dto.getClientDTO().getId() + " non trouvé"));
 
-        Magasin magasin = magasinRepository.findById(dto.getMagasinId())
-                .orElseThrow(() -> new EntityNotFoundException("Magasin ID " + dto.getMagasinId() + " non trouvé"));
+        Magasin magasin = magasinRepository.findById(dto.getMagasinDTO().getId())
+                .orElseThrow(() -> new EntityNotFoundException("Magasin ID " + dto.getMagasinDTO().getId() + " non trouvé"));
         BordereauLivraison bordereau = BordereauLivraisonDTO.toEntity(dto);
-        bordereau.setClient(client);
-        bordereau.setMagasin(magasin);
+        dto.setClientDTO( ClientDTO.fromEntity( client ) );
+        dto.setMagasinDTO( MagasinDTO.fromEntity( magasin ) );
         bordereau.setDateBordereau(LocalDate.now());
         bordereau.setTotalTransport(dto.getTotalTransport());
         bordereau.setTotalEmballage(dto.getTotalEmballage());
-        bordereau.setMontantTtc(dto.getMontantTtc());
-        /*bordereau.setMontantTva(dto.getMontantTva());
-        bordereau.setMontantBic(dto.getMontantBic());
-        bordereau.setMontantPayer(dto.getMontantPayer());
-        bordereau.setTauxTva(dto.getTauxTva());
-        bordereau.setTauxBic(dto.getTauxBic());*/
-        //bord.setEtatBordereau(...);
-        log.info( "AAAAAAAAAAAAAAAOOOOOOOOOO:"+dto);
-        return bordereauRepository.save(bordereau);
+        log.info( "AAAAAAAAAAAAAAAOOOOOOOOOO:"+dto.getMontantTtc());
+        this.bordereauRepository.save(bordereau );
+        return bordereau;
     }
 
     private void traiterProduits(BordereauLivraisonDTO dto, BordereauLivraison bord) {
@@ -206,19 +213,21 @@ public class BordereauService {
         BigDecimal frais = BigDecimal.ZERO;
         frais = dto.getTotalEmballage().add(dto.getTotalTransport());
         for (ProduitBordLivDTO bordLivDTO : dto.getProduitBordLivs()) {
-            Produit produit = produitRepository.findById(bordLivDTO.getProduitId())
-                    .orElseThrow(() -> new ProduitNotFoundException("Produit ID " + bordLivDTO.getProduitId() + " introuvable."));
+            Produit produit = produitRepository.findById(bordLivDTO.getProduitDTO().getId())
+                    .orElseThrow(() -> new ProduitNotFoundException("Produit ID " + bordLivDTO.getProduitDTO().getId() + " introuvable."));
             StockProduit stockProduit = stockProduitRepository.findByProduitId(produit.getId())
                     .orElseThrow(() -> new ProduitNotFoundException("Produit ID "));
             validerQuantiteProduit(bordLivDTO, stockProduit);
             BigDecimal prixTotal = calculerEtMettreAJourProduit(bordLivDTO, stockProduit);
-            prixTotalBord = prixTotalBord.add(prixTotal);
+            log.info("MMMMMMMMMMMMMMMMMMMMMMMMMMM PRIX TOTAL --------------: {}", prixTotal);
             creerProduitBordLiv(bordLivDTO, produit, stockProduit,bord, prixTotal);
+            prixTotalBord = prixTotalBord.add(prixTotal);
+            log.info("MMMMMMMMMMMMMMMMMMMMMMMMMMM PRIX TOTAL BORD--------------: {}", prixTotalBord);
         }
-        montantHt = prixTotalBord.add(frais);
-        bord.setMontantTtc(montantHt);
-       // bord.setMontantTtc(montantHt);
-        log.info("Montant par ligne Total Bord: {}", prixTotalBord);
+         montantHt = prixTotalBord.add(frais);
+        log.info("MMMMMMMMMMMMMMMMM000000000000 MONTANT TTC --------------: {}", montantHt);
+        dto.setMontantHT(montantHt);
+        log.info("Montant par ligne Total Bord: {}", montantHt);
     }
 
 
@@ -232,9 +241,7 @@ public class BordereauService {
     private void creerProduitBordLiv(ProduitBordLivDTO bordLivDTO, Produit produit, StockProduit stockProduit,
                                      BordereauLivraison bord, BigDecimal prixTotal) {
         ProduitBordLiv ligneBord = ProduitBordLivDTO.toEntity(bordLivDTO);
-        ligneBord.setProduit(produit);
-        bordLivDTO.setCodeprod(produit.getCodeprod());
-        bordLivDTO.setLibelle(produit.getLibelle());
+        bordLivDTO.setProduitDTO(ProduitDTO.fromEntity(produit));
         bordLivDTO.setStockProduit(stockProduit.getStockProduit());
         ligneBord.setQteBordLiv(bordLivDTO.getQteBordLiv());
         ligneBord.setPrixAchatBordLiv(bordLivDTO.getPrixAchatBordLiv());
@@ -251,7 +258,6 @@ public class BordereauService {
      */
 
     private BigDecimal calculerEtMettreAJourProduit(ProduitBordLivDTO bordLivDTO, StockProduit stockProduit) {
-       // bordLivDTO.setPrixAchatBordLiv(produit.getPrixActuel());
         BigDecimal prixTotal = bordLivDTO.getPrixAchatBordLiv().multiply(bordLivDTO.getQteBordLiv());
         stockProduit.setStockProduit(stockProduit.getStockProduit().subtract(bordLivDTO.getQteBordLiv()));
         stockProduitRepository.save(stockProduit);
@@ -269,7 +275,6 @@ public class BordereauService {
         if (bordLivDTO.getQteBordLiv() == null || bordLivDTO.getQteBordLiv().compareTo(BigDecimal.ZERO) <= 0) {
             throw new ValidationException("La quantité du produit doit être positive.");
         }
-
         if (bordLivDTO.getQteBordLiv().compareTo(stockProduit.getStockProduit()) > 0) {
             throw new ValidationException("La quantité saisie est supérieure à la quantité en stock.");
         }
@@ -282,7 +287,7 @@ public class BordereauService {
      */
 
     private void appliquerTaxesSiBesoin(BordereauLivraisonDTO dto, BordereauLivraison bord) {
-        BigDecimal prixTotalHT = bord.getMontantTtc();
+        BigDecimal prixTotalHT = dto.getMontantHT();
         if (dto.getTaxesCochees() != null && !dto.getTaxesCochees().isEmpty()) {
             try {
                 stockService.appliquerTaxesSurBordereau(dto, bord, prixTotalHT.subtract(bord.getTotalEmballage())
@@ -290,14 +295,15 @@ public class BordereauService {
                 log.info("Taxes appliquées avec succès pour le bordereau ID {}", bord.getId());
             } catch (Exception e) {
                 log.error("Erreur lors de l'application des taxes: {}", e.getMessage());
-                appliquerAucuneTaxe(bord, prixTotalHT);
             }
+           //  appliquerAucuneTaxe(bord, prixTotalHT);
         } else {
             appliquerAucuneTaxe(bord, prixTotalHT);
         }
         bord.setTauxBic(dto.getTauxBic());
         bord.setTauxTva(dto.getTauxTva());
-        bord.setNetApayer(bord.getMontantTtc());
+        log.info("MMMMMMMMMMMMMMMMMMMMMMMMMMM MONTANT TTC: {}", dto.getNetApayer());
+
     }
 
     /**
@@ -358,5 +364,12 @@ public class BordereauService {
         return bordereauRepository.findAll(pageable);
     }
 
+
+    public List<DetailsBordereauDTO>getBordereauxByClient(String clientId,EtatBordereau etatBordereau) {
+        List<BordereauLivraison> bordereaux = bordereauRepository.getByClientIdAndEtatBordereau(clientId,etatBordereau);
+        return bordereaux.stream()
+                .map(DetailsBordereauDTO::new)
+                .collect( Collectors.toList());
+    }
 
 }

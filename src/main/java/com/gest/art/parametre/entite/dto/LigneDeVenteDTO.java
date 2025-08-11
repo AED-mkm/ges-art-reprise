@@ -25,6 +25,8 @@ public class LigneDeVenteDTO  extends AbstractAuditingEntity implements Serializ
 
 	private String libelle;
 
+	private ProduitDTO produitDTO;
+
 	@Positive
 	private BigDecimal qteVente = BigDecimal.ZERO;
 
@@ -45,7 +47,8 @@ public class LigneDeVenteDTO  extends AbstractAuditingEntity implements Serializ
 	ligneDTO.setQteVente(ligneDeVente.getQteVente());
 	ligneDTO.setPrixUnitaire(ligneDeVente.getPrixUnitaire());
 	ligneDTO.setPrixTotal(ligneDeVente.getPrixTotal());
-	ligneDTO.setProduitId(ligneDeVente.getProduit().getId());
+	//ligneDTO.setProduitId(ligneDeVente.getProduit().getId());
+	ligneDTO.setProduitDTO(ProduitDTO.fromEntity(ligneDeVente.getProduit()));
 	return ligneDTO;
 	}
 

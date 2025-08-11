@@ -129,20 +129,20 @@ public class StockService {
 	}
 
 
-	public void appliquerTaxesSurBordereau(BordereauLivraisonDTO dto, BordereauLivraison bord, BigDecimal prixTotalBord) {
+	public void appliquerTaxesSurBordereau(BordereauLivraisonDTO dto, BordereauLivraison bord, BigDecimal montantHt) {
 		// Validation des paramètres
-		if (dto == null || bord == null || prixTotalBord == null) {
+		if (dto == null || bord == null || montantHt == null) {
 			throw new IllegalArgumentException("Les paramètres ne peuvent pas être null");
 		}
 
-		if (prixTotalBord.compareTo(BigDecimal.ZERO) < 0) {
+		if (montantHt.compareTo(BigDecimal.ZERO) < 0) {
 			throw new IllegalArgumentException("Le prix total ne peut pas être négatif");
 		}
 
 		final BigDecimal cent = new BigDecimal("100");
 		BigDecimal montantTva = BigDecimal.ZERO;
 		BigDecimal montantBic = BigDecimal.ZERO;
-		BigDecimal prixTotalTTC = prixTotalBord;
+		BigDecimal prixTotalHT = dto.getMontantHT();
 
 		// Applique les taxes seulement si des taxes sont cochées
 		if (dto.getTaxesCochees() != null && !dto.getTaxesCochees().isEmpty()) {
@@ -156,19 +156,21 @@ public class StockService {
 
 				switch(codeTaxe) {
 					case "01": // TVA
-						montantTva = prixTotalBord.multiply(taux)
+						montantTva = montantHt.multiply(taux)
 								.setScale(2, RoundingMode.HALF_UP);
-						prixTotalTTC = prixTotalTTC.add(montantTva);
+						prixTotalHT = prixTotalHT.add(montantTva);
 						taxesAppliquees.add("TVA (" + taxe.getTaxe() + "%)");
 						bord.setTauxTva(taxe.getTaxe());
+						dto.setTauxTva(dto.getTauxTva());
 						break;
 
 					case "02": // BIC
-						montantBic = prixTotalBord.multiply(taux)
+						montantBic = montantHt.multiply(taux)
 								.setScale(2, RoundingMode.HALF_UP);
-						prixTotalTTC = prixTotalTTC.add(montantBic);
+						prixTotalHT = prixTotalHT.add(montantBic);
 						taxesAppliquees.add("BIC (" + taxe.getTaxe() + "%)");
 						 bord.setTauxBic(taxe.getTaxe());
+						 dto.setTauxBic(taxe.getTaxe());
 						log.info( "TTTTTTTTTTT:"+ bord.getTauxBic());
 						break;
 
@@ -180,14 +182,25 @@ public class StockService {
 
 			bord.setMontantTva(montantTva);
 			bord.setMontantBic(montantBic);
-			bord.setMontantTtc(prixTotalTTC);
+			dto.setMontantTva(montantTva);
+			dto.setMontantBic(montantBic);
+			dto.setMontantTtc(prixTotalHT);
+
+
 			//vente.setTaxesAppliquees(String.join(", ", taxesAppliquees));
 			log.info("Taxes appliquées: {}. Montant TVA: {}, BIC: {}, Total TTC: {}",
-					taxesAppliquees, montantTva, montantBic, prixTotalTTC);
+					taxesAppliquees, montantTva, montantBic, prixTotalHT);
 		} else {
 			log.info("Aucune taxe sélectionnée, le prix TTC reste inchangé");
-			bord.setMontantTtc(prixTotalBord);
+			dto.setMontantTtc(montantHt);
+			bord.setMontantTtc(montantHt);
 		}
+		dto.setNetApayer(dto.getMontantTtc());
+		dto.setMontantRestant(dto.getMontantTtc());
+		bord.setMontantTtc(dto.getMontantTtc());
+		bord.setNetApayer(dto.getMontantTtc());
+		bord.setMontantHT(dto.getMontantHT());
+		dto.setMontantHT(dto.getMontantHT());
 	}
 
 

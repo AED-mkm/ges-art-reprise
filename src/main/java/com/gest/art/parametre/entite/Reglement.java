@@ -28,6 +28,7 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 
@@ -62,20 +63,25 @@ public class Reglement extends AbstractAuditingEntity implements Serializable {
     @Column(name = "date_regl")
     private LocalDate dateRegl;
     @Column(name = "montant_regl")
-    private double montantRegl;
+    private BigDecimal montantRegl;
     @Column(name = "lib_regl")
     private String libelleRegl;
-    @Column(name = "type_regl")
-    private String typeRegl;
-    /*@OneToMany(mappedBy = "reglment")
-    private List<BordereauLivraison> bordereauLivraisons;*/
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "bon_cmd_fpur", referencedColumnName = "id")
+    @JoinColumn(name = "typeReglement", referencedColumnName = "id")
     @JsonIgnoreProperties(value = "reglement", allowSetters = true)
-    private BonDeCmdeFour bonDeCmdeFour;
+    private TypeReglement typeReglement;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "client", referencedColumnName = "id")
+    @JsonIgnoreProperties(value = "reglement", allowSetters = true)
+    private Client client;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "mag_id", referencedColumnName = "id")
     @JsonIgnoreProperties(value = "reglement", allowSetters = true)
     private Magasin magasin;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "bordereau_id")
+    @JsonIgnoreProperties({"reglements", "client", "magasin"})
+    private BordereauLivraison bordereau;
+
 
 }

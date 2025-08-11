@@ -3,7 +3,10 @@ package com.gest.art.parametre.resource;
 import com.gest.art.parametre.entite.BordereauLivraison;
 import com.gest.art.parametre.entite.Vente;
 import com.gest.art.parametre.entite.dto.BordereauLivraisonDTO;
+import com.gest.art.parametre.entite.dto.DetailsBordereauDTO;
+import com.gest.art.parametre.entite.dto.ProduitDTO;
 import com.gest.art.parametre.entite.dto.VenteDTO;
+import com.gest.art.parametre.entite.enums.EtatBordereau;
 import com.gest.art.parametre.service.BordereauService;
 import com.gest.art.security.config.HeaderUtil;
 import jakarta.validation.Valid;
@@ -26,6 +29,8 @@ import org.springframework.web.server.ResponseStatusException;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -60,6 +65,13 @@ public class BordereauResource {
         return new ResponseEntity<>(bordereauService.findPage(0, 5, "createdDate"), HttpStatus.OK);
     }
 
+    @GetMapping("bordereaux/{clientId}/{etatBordereau}")
+    public ResponseEntity<List<DetailsBordereauDTO>> getBordereauxByClient(
+            @PathVariable String clientId,
+            @PathVariable EtatBordereau etatBordereau) {
+        List<DetailsBordereauDTO> result = bordereauService.getBordereauxByClient(clientId,etatBordereau);
+        return ResponseEntity.ok(result);
+    }
 
 
 }

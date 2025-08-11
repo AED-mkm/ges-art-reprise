@@ -1,12 +1,15 @@
 package com.gest.art.parametre.entite.dto;
 
 
+import com.gest.art.parametre.entite.BordereauLivraison;
+import com.gest.art.parametre.entite.Client;
 import com.gest.art.parametre.entite.Reglement;
 import com.gest.art.security.auditing.AbstractAuditingEntity;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Builder
@@ -20,13 +23,16 @@ public class ReglementDTO extends AbstractAuditingEntity implements Serializable
 	private String id;
 	private String numRegl;
 	private LocalDate dateRegl;
-	private double montantRegl;
+	private BigDecimal montantRegl;
 	private String libelleRegl;
-	private String typeRegl;
+	private TypeReglementDTO typeReglementDTO;
+	private ClientDTO clientDTO;
+	private BordereauLivraisonDTO bordereauLivraisonDTO;
 
 	// Références aux IDs des entités liées
 	private String bonDeCmdeFourId;
-	private String magasinId;
+	//private String magasinId;
+	private MagasinDTO magasinDTO;
 
 	public static ReglementDTO fromEntity(Reglement reglement) {
 		if (reglement == null) {
@@ -39,9 +45,8 @@ public class ReglementDTO extends AbstractAuditingEntity implements Serializable
 				.dateRegl(reglement.getDateRegl())
 				.montantRegl(reglement.getMontantRegl())
 				.libelleRegl(reglement.getLibelleRegl())
-				.typeRegl(reglement.getTypeRegl())
-				.bonDeCmdeFourId(reglement.getBonDeCmdeFour() != null ? reglement.getBonDeCmdeFour().getId() : null)
-				.magasinId(reglement.getMagasin() != null ? reglement.getMagasin().getId() : null)
+				.typeReglementDTO(TypeReglementDTO.fromEntity(reglement.getTypeReglement()))
+				.magasinDTO(MagasinDTO.fromEntity(reglement.getMagasin()))
 				.build();
 	}
 
@@ -49,14 +54,12 @@ public class ReglementDTO extends AbstractAuditingEntity implements Serializable
 		if (dto == null) {
 			return null;
 		}
-
 		return Reglement.builder()
 				.id(dto.getId())
 				.numRegl(dto.getNumRegl())
 				.dateRegl(dto.getDateRegl())
 				.montantRegl(dto.getMontantRegl())
 				.libelleRegl(dto.getLibelleRegl())
-				.typeRegl(dto.getTypeRegl())
 				// Les relations doivent être gérées séparément
 				.build();
 	}

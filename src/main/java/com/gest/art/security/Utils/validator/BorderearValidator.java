@@ -10,7 +10,7 @@ public class BorderearValidator {
 		{
 			throw new ValidationException("La liste des produits du bordereau ne doit pas etre vide!");
 		}
-		if(dto.getClientId()==null)
+		if(dto.getClientDTO().getId()==null)
 		{
 			throw new ValidationException("Le client est obligatoire pour etablir un bordereau de livraison!");
 		}

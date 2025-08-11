@@ -3,10 +3,14 @@ package com.gest.art.parametre.entite;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.gest.art.parametre.entite.enums.EtatBordereau;
+import com.gest.art.parametre.entite.enums.TypeVente;
 import com.gest.art.security.auditing.AbstractAuditingEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 
@@ -69,15 +73,6 @@ public class BordereauLivraison extends AbstractAuditingEntity implements Serial
     @Column(name = "date_bord")
     private LocalDate dateBordereau;
 
-/*    @Column(name = "total_bord")
-    private BigDecimal totalBordereau;*/
-
-   /* @Column(name = "total_general")
-    private BigDecimal totalGeneral;*/
-
-    /*@Column(name = "total_remise")
-    private BigDecimal totalRemise;*/
-
     @Column(name = "net_a_payer")
     private BigDecimal netApayer;
 
@@ -90,11 +85,16 @@ public class BordereauLivraison extends AbstractAuditingEntity implements Serial
     @Column(name = "montant_payer")
     private BigDecimal montantPayer;
 
+    @Column(name = "montant_restant")
+    private BigDecimal montantRestant;
+
     @Column(name = "taux_tva")
     private BigDecimal tauxTva;
 
-    @Column(name = "etat_bord")
-    private String etatBordereau;
+   /* @Column(name = "etat_bord")
+    private String etatBordereau;*/
+    @Enumerated(EnumType.STRING)
+    private EtatBordereau etatBordereau;
 
     @Column(name = "montant_tva")
     private BigDecimal montantTva;
@@ -108,6 +108,9 @@ public class BordereauLivraison extends AbstractAuditingEntity implements Serial
     @Column(name = "montant_ttc")
     private BigDecimal montantTtc;
 
+    @Column(name = "montant_ht")
+    private BigDecimal montantHT;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "client_id", referencedColumnName = "id")
     @JsonIgnoreProperties(value = "bord_liv", allowSetters = true)
@@ -116,10 +119,12 @@ public class BordereauLivraison extends AbstractAuditingEntity implements Serial
     @JoinColumn(name = "mag_id", referencedColumnName = "id")
     @JsonIgnoreProperties(value = "bord_liv", allowSetters = true)
     private Magasin magasin;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "taxe", referencedColumnName = "id")
     @JsonIgnoreProperties(value = "vente", allowSetters = true)
     private Taxe taxe;
+    @OneToMany(mappedBy = "bordereau", cascade = CascadeType.ALL)
+    @JsonIgnoreProperties("bordereau")
+    private List<Reglement> reglements = new ArrayList<>();
 
 }

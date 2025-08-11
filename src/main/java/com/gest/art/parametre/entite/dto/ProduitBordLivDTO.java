@@ -26,34 +26,26 @@ public class ProduitBordLivDTO extends AbstractAuditingEntity implements Seriali
 	private String produitId;
 	private Integer codeprod;
 	private String libelle;
+	private ProduitDTO produitDTO;
 	private BigDecimal stockProduit;
 
 	// Références aux IDs des entités liées
-	private String bordereauLivraisonId;
-	private String magasinId;
+	//private String bordereauLivraisonId;
+	//private String magasinId;
 
 	public static ProduitBordLivDTO fromEntity(ProduitBordLiv produitBordLiv) {
 		if (produitBordLiv == null) {
 			return null;
 		}
 
-		return ProduitBordLivDTO.builder()
-				.id(produitBordLiv.getId())
-				.qteBordLiv(produitBordLiv.getQteBordLiv())
-				.prixBordLiv(produitBordLiv.getPrixBordLiv())
-				.prixAchatBordLiv(produitBordLiv.getPrixAchatBordLiv())
-				.bordereauLivraisonId(produitBordLiv.getBordereauLivraison() != null ?
-						produitBordLiv.getBordereauLivraison().getId() : null)
-				.magasinId(produitBordLiv.getMagasin() != null ?
-						produitBordLiv.getMagasin().getId() : null)
-				.codeprod(produitBordLiv.getProduit().getCodeprod())
-				.libelle(produitBordLiv.getProduit().getLibelle())
-				.stockProduit(produitBordLiv.getProduit().getStockProduit())
-				/*.createdBy(produitBordLiv.getCreatedBy())
-				.lastModifiedBy(produitBordLiv.getLastModifiedBy())
-				.createdDate(produitBordLiv.getCreatedDate())
-				.lastModifiedDate(produitBordLiv.getLastModifiedDate())*/
-				.build();
+		ProduitBordLivDTO produitBordLivDTO = new ProduitBordLivDTO();
+		produitBordLivDTO.setId(produitBordLiv.getId());
+		produitBordLivDTO.setQteBordLiv(produitBordLiv.getQteBordLiv());
+		produitBordLivDTO.setPrixBordLiv(produitBordLiv.getPrixBordLiv());
+		produitBordLivDTO.setPrixAchatBordLiv(produitBordLiv.getPrixAchatBordLiv());
+		produitBordLivDTO.setProduitDTO(ProduitDTO.fromEntity(produitBordLiv.getProduit()));
+		produitBordLivDTO.setStockProduit(produitBordLiv.getProduit().getStockProduit());
+		return produitBordLivDTO;
 	}
 
 	public static ProduitBordLiv toEntity(ProduitBordLivDTO dto) {

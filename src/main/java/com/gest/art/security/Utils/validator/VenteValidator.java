@@ -12,7 +12,7 @@ public class VenteValidator {
 		{
 			throw new ValidationException("Lq liste des lignes de vente ne doit pas etre vide!");
 		}
-		if(dto.getClientId()==null)
+		if(dto.getClientDTO().getId()==null)
 		{
 			throw new ValidationException("Le client est obligatoire pour effectuer une vente!");
 		}

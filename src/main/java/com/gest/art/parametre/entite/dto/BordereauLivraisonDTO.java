@@ -4,6 +4,8 @@ package com.gest.art.parametre.entite.dto;
 
 import com.gest.art.parametre.entite.BordereauLivraison;
 import com.gest.art.parametre.entite.ProduitBordLiv;
+import com.gest.art.parametre.entite.Reglement;
+import com.gest.art.parametre.entite.enums.EtatBordereau;
 import com.gest.art.security.auditing.AbstractAuditingEntity;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -24,24 +26,29 @@ public class BordereauLivraisonDTO extends AbstractAuditingEntity implements Ser
 
 	private String id;
 	private String numBordereau;
-	private LocalDate dateBordereau;
+	private LocalDate dateBordereau ;
 	private BigDecimal netApayer = BigDecimal.ZERO ;
 	private BigDecimal totalTransport = BigDecimal.ZERO;
 	private BigDecimal totalEmballage = BigDecimal.ZERO;
 	private BigDecimal montantPayer = BigDecimal.ZERO;
 	private BigDecimal tauxTva = BigDecimal.ZERO;
-	private String etatBordereau;
+	/*private String etatBordereau;*/
+	private EtatBordereau etatBordereau;
 	private BigDecimal montantTva = BigDecimal.ZERO;
 	private BigDecimal tauxBic = BigDecimal.ZERO;
 	private BigDecimal montantBic = BigDecimal.ZERO;
 	private BigDecimal montantTtc = BigDecimal.ZERO;
+	private BigDecimal montantRestant = BigDecimal.ZERO;
+	private BigDecimal montantHT = BigDecimal.ZERO;
 
 	// Références aux IDs des entités liées
 	private String clientId;
+	private ClientDTO clientDTO;
+	private MagasinDTO magasinDTO;
 	private String magasinId;
 	private List<ProduitBordLivDTO> produitBordLivs;
 	private List<String> taxesCochees;
-
+	private List<ReglementDTO> reglements;
 
 	public static BordereauLivraisonDTO fromEntity(BordereauLivraison bordereau) {
 		if (bordereau == null) {
@@ -57,11 +64,15 @@ public class BordereauLivraisonDTO extends AbstractAuditingEntity implements Ser
 	bordereauDTO.setMontantPayer(bordereau.getMontantPayer());
 	bordereauDTO.setTauxBic(bordereau.getTauxBic());
 	bordereauDTO.setMontantTva(bordereau.getMontantTva());
-	bordereauDTO.setEtatBordereau(bordereau.getEtatBordereau());
+    bordereauDTO.setEtatBordereau(EtatBordereau.NON_SOLDE);
 	bordereauDTO.setTauxTva(bordereau.getTauxTva());
 	bordereauDTO.setMontantBic(bordereau.getMontantBic());
-	bordereauDTO.setClientId(bordereau.getClient().getId());
-	bordereauDTO.setMagasinId(bordereau.getMagasin().getId());
+	//bordereauDTO.setClientId(bordereau.getClient().getId());
+	bordereauDTO.setClientDTO(bordereauDTO.getClientDTO());
+	//bordereauDTO.setMagasinId(bordereau.getMagasin().getId());
+	bordereauDTO.setMagasinDTO(bordereauDTO.getMagasinDTO());
+	bordereauDTO.setMontantRestant(bordereau.getMontantRestant());
+	bordereauDTO.setMontantHT(bordereau.getMontantHT());
 	return bordereauDTO;
 	}
 
@@ -80,6 +91,8 @@ public class BordereauLivraisonDTO extends AbstractAuditingEntity implements Ser
 				.tauxBic(dto.getTauxBic() !=null ? dto.getTauxBic(): BigDecimal.ZERO)
 				.montantBic(dto.getMontantBic() !=null ? dto.getMontantBic(): BigDecimal.ZERO)
 				.montantTtc(dto.getMontantTtc() !=null ? dto.getMontantTtc(): BigDecimal.ZERO)
+				.montantRestant(dto.getMontantRestant() !=null? dto.getMontantRestant():BigDecimal.ZERO)
+				.montantHT(dto.getMontantHT()!=null? dto.getMontantHT():BigDecimal.ZERO)
 				.build();
 
 	}
